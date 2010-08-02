@@ -50,9 +50,12 @@ restriction is easy to define as both a decorator and a context manager. A
 simple quickstart example is presented with commenting::
 
     from flask import Flask, Response
-    from flaskext.principal import Permission, RoleNeed
+    from flaskext.principal import Principals, Permission, RoleNeed
 
     app = Flask(__name__)
+
+    # load the extension
+    principals = Principals(app)
 
     # Create a permission with a single Need, in this case a RoleNeed.
     admin_permission = Permission(RoleNeed('admin'))
@@ -110,7 +113,8 @@ API
 Starting the extension
 ----------------------
 
-.. autofunction:: flaskext.principal.init_principal
+.. autoclass:: flaskext.principal.Principals
+    :members:
 
 
 Main Types
