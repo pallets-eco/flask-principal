@@ -82,8 +82,9 @@ def mkapp():
     def h():
         i = Identity('james')
         identity_changed.send(app, identity=i)
-        with admin_permission.require(), editor_permission.require():
-            pass
+        with admin_permission.require():
+            with editor_permission.require():
+                pass
 
     return app
 

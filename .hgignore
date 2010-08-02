@@ -2,4 +2,5 @@
 .+\.swp
 build
 dist
-.coverage
+\.coverage
+Flask_Principal\.egg-info
