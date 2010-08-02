@@ -15,7 +15,7 @@ from functools import partial, wraps
 from collections import namedtuple
 
 
-from flask import g, session
+from flask import g, session, current_app
 from flask.signals import Namespace
 
 
@@ -40,7 +40,7 @@ For example::
     def login_view(req):
         username = req.form.get('username')
         # check the credentials
-        identity_changed.send('login-view', identity=Identity(username))
+        identity_changed.send(app, identity=Identity(username))
 """)
 
 
@@ -257,7 +257,7 @@ def _load_identity():
         g.identity = identity
     else:
         g.identity = AnonymousIdentity()
-    identity_loaded.send(g.identity, identity=g.identity)
+    identity_loaded.send(current_app._get_current_object(), identity=g.identity)
 
 
 def _on_before_request():
@@ -278,6 +278,6 @@ def init_principal(app):
         init_principal(app)
     """
     app.before_request(_on_before_request)
-    identity_changed.connect(_on_identity_changed)
+    identity_changed.connect(_on_identity_changed, app)
 
 
