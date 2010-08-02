@@ -132,7 +132,6 @@ Main Types
 .. autoclass:: flaskext.principal.Principal
     :members:
 
-.. autofunction:: flaskext.principal.set_identity
 
 
 Predefined Need Types

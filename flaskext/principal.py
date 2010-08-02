@@ -281,13 +281,13 @@ class Principals(object):
 
         For example::
 
-        app = Flask(__name__)
+            app = Flask(__name__)
 
-        principals = Principals(app)
+            principals = Principals(app)
 
-        @principals.identity_loader
-        def load_identity_from_weird_usecase():
-            return Identity('ali')
+            @principals.identity_loader
+            def load_identity_from_weird_usecase():
+                return Identity('ali')
         """
         self.identity_loaders.appendleft(f)
         return f
@@ -300,13 +300,13 @@ class Principals(object):
 
         For example::
 
-        app = Flask(__name__)
+            app = Flask(__name__)
 
-        principals = Principals(app)
+            principals = Principals(app)
 
-        @principals.identity_saver
-        def save_identity_to_weird_usecase(identity):
-            my_special_cookie['identity'] = identity
+            @principals.identity_saver
+            def save_identity_to_weird_usecase(identity):
+                my_special_cookie['identity'] = identity
         """
         self.identity_savers.appendleft(f)
         return f
