@@ -47,7 +47,7 @@ For example::
 identity_loaded = signals.signal('identity-loaded', doc=
 """Signal sent when the identity has been initialised for a request.
 
-Actual name:: ``identity-loaded``
+Actual name: ``identity-loaded``
 
 Identity information providers should connect to this signal to perform two
 major activities:

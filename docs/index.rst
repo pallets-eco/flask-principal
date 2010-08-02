@@ -33,6 +33,13 @@ The major components are the Identity, Needs, Permission, and the Principal.
     3. A Principal is the context of a certain identity against a certain Permission.
 
 
+Links
+-----
+
+* `documentation <http://packages.python.org/Flask-Principal/>`_
+* `source <http://bitbucket.org/aafshar/flask-principal-main>`_
+
+
 Protecting access to resources
 ------------------------------
 

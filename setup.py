@@ -7,17 +7,17 @@ Identity management for Flask.
 Links
 `````
 
-* `documentation <http://packages.python.org/Flask%20Principal>`_
-* `source <http://bitbucket.org/aafshar/flask-identity-main`_
+* `documentation <http://packages.python.org/Flask-Principal/>`_
+* `source <http://bitbucket.org/aafshar/flask-principal-main>`_
 
 """
 from setuptools import setup
 
 
 setup(
-    name='Flask Principal',
+    name='Flask-Principal',
     version='0.1',
-    url='http://packages.python.org/Flask-Principal',
+    url='http://packages.python.org/Flask-Principal/',
     license='MIT',
     author='Ali Afshar',
     author_email='aafshar@gmail.com',
