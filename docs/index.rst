@@ -67,6 +67,38 @@ simple quickstart example is presented with commenting::
         with admin_permission.require():
             return Response('Only if you are admin')
 
+Authentication providers
+------------------------
+
+Authentication providers should use the `identity-changed` signal to indicate
+that a request has been authenticated. For example::
+
+
+    from flask import current_app
+    from flaskext.principal import Identity, identity_changed
+
+    def login_view(req):
+        username = req.form.get('username')
+        # check the credentials
+        identity_changed.send(current_app._get_current_object(),
+                              identity=Identity(username))
+
+User Information providers
+--------------------------
+
+User information providers should connect to the `identity-loaded` signal to
+add any additional information to the Identity instance such as roles. For
+example::
+
+    from flaskext.principal import indentity_loaded, RoleNeed, UserNeed
+
+    @identity_loaded.connect_via(app)
+    def on_identity_loaded(sender, identity):
+        # Get the user information from the db
+        user = db.get(identity.name)
+        # Update the roles that a user can provide
+        for role in user.roles:
+            identity.provides.add(RoleNeed(role.name))
 
 API
 ===
