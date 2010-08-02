@@ -1,8 +1,10 @@
+
 Flask Principal
 ===============
 
 *"I am that I am"*
 
+.. automodule:: flaskext.principal
 
 Introduction
 ------------
@@ -103,7 +105,6 @@ example::
 API
 ===
 
-.. automodule:: flaskext.principal
 
 
 Starting the extension
@@ -134,13 +135,16 @@ Predefined Need Types
 ---------------------
 
 .. autoclass:: flaskext.principal.Need
+
 .. autoattribute:: flaskext.principal.RoleNeed
+
 .. autoattribute:: flaskext.principal.UserNeed
 
 Relevant Signals
 ----------------
 
 .. autoattribute:: flaskext.principal.identity_changed
+
 .. autoattribute:: flaskext.principal.identity_loaded
 
 
