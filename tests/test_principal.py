@@ -3,7 +3,7 @@ from py.test import raises
 
 from flask import Flask, Response, g, session
 
-from flaskext.principal import init_principal, Permission, RoleNeed, \
+from flaskext.principal import Principals, Permission, RoleNeed, \
     PermissionDenied, identity_changed, Identity, identity_loaded
 
 
@@ -20,7 +20,7 @@ def mkapp():
     app.secret_key = 'notverysecret'
     app.debug = True
 
-    init_principal(app)
+    p = Principals(app)
 
     admin_permission = Permission(RoleNeed('admin'))
     anon_permission = Permission()

@@ -12,7 +12,7 @@
 
 import sys
 from functools import partial, wraps
-from collections import namedtuple
+from collections import namedtuple, deque
 
 
 from flask import g, session, current_app
@@ -233,51 +233,97 @@ class Permission(object):
         return self.needs.issubset(other.needs)
 
 
-def set_identity(identity):
-    """Set the identity in the session
-    """
-    session['identity.name'] = identity.name
-    session['identity.auth_type'] = identity.auth_type
-    session.modified = True
-    _load_identity()
-
-
-def _on_identity_changed(sender, identity):
-    """Identity change signal handler
-    """
-    set_identity(identity)
-
-
-def _load_identity():
-    """Load the identity from the session
-    """
+def session_identity_loader():
     if 'identity.name' in session and 'identity.auth_type' in session:
         identity = Identity(session['identity.name'],
                             session['identity.auth_type'])
-        g.identity = identity
-    else:
-        g.identity = AnonymousIdentity()
-    identity_loaded.send(current_app._get_current_object(), identity=g.identity)
+        return identity
 
 
-def _on_before_request():
-    """Before request flask signal handler
+def session_identity_saver(identity):
+    session['identity.name'] = identity.name
+    session['identity.auth_type'] = identity.auth_type
+    session.modified = True
+
+
+class Principals(object):
+    """Principals extension
+
+    :param app: The flask application to extend
+    :param use_sessions: Whether to use sessions to extract and store
+                         identification.
     """
-    _load_identity()
+    def __init__(self, app, use_sessions=True):
+        self.app = app
+        self.identity_loaders = deque()
+        self.identity_savers = deque()
+        app.before_request(self._on_before_request)
+        identity_changed.connect(self._on_identity_changed, app)
 
+        if use_sessions:
+            self.identity_loader(session_identity_loader)
+            self.identity_saver(session_identity_saver)
 
-def init_principal(app):
-    """Start the principal extension
+    def set_identity(self, identity):
+        """Set the current identity.
 
-    For example::
+        :param identity: The identity to set
+        """
+        self._set_thread_identity(identity)
+        for saver in self.identity_savers:
+            saver(identity)
 
-        from flask import Flask
-        from flaskext.principal import init_principal
+    def identity_loader(self, f):
+        """Decorator to define a function as an identity loader.
+
+        An identity loader function is called before request to find any
+        provided identities. The first found identity is used to load from.
+
+        For example::
 
         app = Flask(__name__)
-        init_principal(app)
-    """
-    app.before_request(_on_before_request)
-    identity_changed.connect(_on_identity_changed, app)
 
+        principals = Principals(app)
+
+        @principals.identity_loader
+        def load_identity_from_weird_usecase():
+            return Identity('ali')
+        """
+        self.identity_loaders.appendleft(f)
+        return f
+
+    def identity_saver(self, f):
+        """Decorator to define a function as an identity saver.
+
+        An identity loader saver is called when the identity is set to persist
+        it for the next request.
+
+        For example::
+
+        app = Flask(__name__)
+
+        principals = Principals(app)
+
+        @principals.identity_saver
+        def save_identity_to_weird_usecase(identity):
+            my_special_cookie['identity'] = identity
+        """
+        self.identity_savers.appendleft(f)
+        return f
+
+    def _set_thread_identity(self, identity):
+        g.identity = identity
+        identity_loaded.send(current_app._get_current_object(),
+                             identity=identity)
+
+    def _on_identity_changed(self, app, identity):
+        self.set_identity(identity)
+
+    def _on_before_request(self):
+        g.identity = AnonymousIdentity()
+        for loader in self.identity_loaders:
+            identity = loader()
+            if identity is not None:
+                self.set_identity(identity)
+                return
 
