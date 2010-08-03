@@ -232,6 +232,13 @@ class Permission(object):
         """
         return self.needs.issubset(other.needs)
 
+    def allows(self, identity):
+        """Whether the identity can access this permission.
+
+        :param identity: The identity
+        """
+        return identity.can(self)
+
 
 def session_identity_loader():
     if 'identity.name' in session and 'identity.auth_type' in session:
@@ -253,14 +260,19 @@ class Principals(object):
     :param use_sessions: Whether to use sessions to extract and store
                          identification.
     """
-    def __init__(self, app, use_sessions=True):
-        self.app = app
+    def __init__(self, app=None, use_sessions=True):
         self.identity_loaders = deque()
         self.identity_savers = deque()
+        # XXX This will probably vanish for a better API
+        self.use_sessions = use_sessions
+        if app is not None:
+            self._init_app(app)
+
+    def _init_app(self, app):
         app.before_request(self._on_before_request)
         identity_changed.connect(self._on_identity_changed, app)
 
-        if use_sessions:
+        if self.use_sessions:
             self.identity_loader(session_identity_loader)
             self.identity_saver(session_identity_saver)
 
