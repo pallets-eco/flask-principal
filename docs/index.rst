@@ -19,7 +19,7 @@ For example, an authentication provider may be oauth, using Flask-OAuth and
 the user information may be stored in a relational database. Looseness of
 the framework is provided by using signals as the interface.
 
-The major components are the Identity, Needs, Permission, and the Principal.
+The major components are the Identity, Needs, Permission, and the IdentityContext.
 
     1. The Identity represents the user, and is stored/loaded from the cookie
        sessions.
@@ -32,7 +32,7 @@ The major components are the Identity, Needs, Permission, and the Principal.
     2. A permission is a set of requirements, any of which should be
        present for access to a resource.
        
-    3. A Principal is the context of a certain identity against a certain Permission.
+    3. A IdentityContext is the context of a certain identity against a certain Permission.
 
 
 Links
@@ -50,12 +50,12 @@ restriction is easy to define as both a decorator and a context manager. A
 simple quickstart example is presented with commenting::
 
     from flask import Flask, Response
-    from flaskext.principal import Principals, Permission, RoleNeed
+    from flaskext.principal import Principal, Permission, RoleNeed
 
     app = Flask(__name__)
 
     # load the extension
-    principals = Principals(app)
+    principals = Principal(app)
 
     # Create a permission with a single Need, in this case a RoleNeed.
     admin_permission = Permission(RoleNeed('admin'))
@@ -113,7 +113,7 @@ API
 Starting the extension
 ----------------------
 
-.. autoclass:: flaskext.principal.Principals
+.. autoclass:: flaskext.principal.Principal
     :members:
 
 
@@ -129,7 +129,7 @@ Main Types
 .. autoclass:: flaskext.principal.AnonymousIdentity
     :members:
 
-.. autoclass:: flaskext.principal.Principal
+.. autoclass:: flaskext.principal.IdentityContext
     :members:
 
 

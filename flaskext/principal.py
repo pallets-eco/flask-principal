@@ -30,7 +30,7 @@ identity_changed = signals.signal('identity-changed', doc=
 Actual name: ``identity-changed``
 
 Authentication providers should send this signal when authentication has been
-successfully performed. Flask-Principal connects to this signal and causes the
+successfully performed. Flask-IdentityContext connects to this signal and causes the
 identity to be saved in the session.
 
 For example::
@@ -147,7 +147,7 @@ class AnonymousIdentity(Identity):
         Identity.__init__(self, 'anon')
 
 
-class Principal(object):
+class IdentityContext(object):
     """The context of an identity for a permission.
 
     .. note:: The principal is usually created by the flaskext.Permission.require method
@@ -215,7 +215,7 @@ class Permission(object):
 
         The principal may be used as a context manager, or a decroator.
         """
-        return Principal(self)
+        return IdentityContext(self)
 
     def union(self, other):
         """Create a new permission with the requirements of the union of this
@@ -253,8 +253,8 @@ def session_identity_saver(identity):
     session.modified = True
 
 
-class Principals(object):
-    """Principals extension
+class Principal(object):
+    """Principal extension
 
     :param app: The flask application to extend
     :param use_sessions: Whether to use sessions to extract and store
@@ -295,7 +295,7 @@ class Principals(object):
 
             app = Flask(__name__)
 
-            principals = Principals(app)
+            principals = Principal(app)
 
             @principals.identity_loader
             def load_identity_from_weird_usecase():
@@ -314,7 +314,7 @@ class Principals(object):
 
             app = Flask(__name__)
 
-            principals = Principals(app)
+            principals = Principal(app)
 
             @principals.identity_saver
             def save_identity_to_weird_usecase(identity):
