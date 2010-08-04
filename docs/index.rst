@@ -143,6 +143,8 @@ Predefined Need Types
 
 .. autoattribute:: flaskext.principal.UserNeed
 
+.. autoattribute:: flaskext.principal.ItemNeed
+
 Relevant Signals
 ----------------
 

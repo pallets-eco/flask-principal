@@ -82,12 +82,34 @@ attribute can be used to look up element 1.
 
 
 UserNeed = partial(Need, 'name')
-"""A need with the method preset to `"name"`.
-"""
+UserNeed.__doc__ = """A need with the method preset to `"name"`."""
 
 
 RoleNeed = partial(Need, 'role')
-"""A need with the method preset to `"role"`.
+RoleNeed.__doc__ = """A need with the method preset to `"role"`."""
+
+
+TypeNeed = partial(Need, 'type')
+TypeNeed.__doc__ = """A need with the method preset to `"role"`."""
+
+
+ActionNeed = partial(Need, 'action')
+TypeNeed.__doc__ = """A need with the method preset to `"action"`."""
+
+
+ItemNeed = namedtuple('RowNeed', ['method', 'value', 'type'])
+"""A required item need
+
+An item need is just a named tuple, and practically any tuple will do. In
+addition to other Needs, there is a type, for example this could be specified
+as::
+
+    RowNeed('update', 27, 'posts')
+    ('update', 27, 'posts') # or like this
+
+And that might describe the permission to update a particular blog post. In
+reality, the developer is free to choose whatever convention the permissions
+are.
 """
 
 
