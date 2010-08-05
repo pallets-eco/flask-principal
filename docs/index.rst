@@ -21,18 +21,36 @@ the framework is provided by using signals as the interface.
 
 The major components are the Identity, Needs, Permission, and the IdentityContext.
 
-    1. The Identity represents the user, and is stored/loaded from the cookie
-       sessions.
+    1. The Identity represents the user, and is stored/loaded from various
+       locations (eg session) for each request. The Identity is the user's
+       avatar to the system. It contains the access rights that the user has.
     
-    2. A need is a pair of (method, value) where method is used to specify
+    2. A Need is the smallest grain of access control, and represents a specific
+       parameter for the situation. For example "has the admin role", "can edit
+       blog posts".
+    
+       Needs are any tuple, or probably could be object you like, but a tuple
+       fits perfectly. The predesigned Need types (for saving your typing) are
+       either pairs of (method, value) where method is used to specify
        common things such as `"role"`, `"user"`, etc. And the value is the
        value. An example of such is `('role', 'admin')`. Which would be a
-       Need for a admin role.
+       Need for a admin role. Or Triples for use-cases such as "The permission
+       to edit a particular instance of an object or row", which might be represented
+       as the triple `('article', 'edit', 46)`, where 46 is the key/ID for that
+       row/object.
+       
+       Essentially, how and what Needs are is very much down to the user, and is
+       designed loosely so that any effect can be achieved by using custom
+       instances as Needs.
 
-    2. A permission is a set of requirements, any of which should be
+       Whilst a Need is a permission to access a resource, an Identity should
+       provide a set of Needs that it has access to.
+
+    2. A Permission is a set of requirements, any of which should be
        present for access to a resource.
        
-    3. A IdentityContext is the context of a certain identity against a certain Permission.
+    3. An IdentityContext is the context of a certain identity against a certain
+       Permission. It can be used as a context manager, or a decorator.
 
 
 Links
