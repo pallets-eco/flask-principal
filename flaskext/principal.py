@@ -153,10 +153,7 @@ class Identity(object):
 
         :param permission: The permission to test provision for.
         """
-        if not permission.needs:
-            return True
-        else:
-            return permission.needs.intersection(self.provides)
+        return permission.allows(self)
 
 
 class AnonymousIdentity(Identity):
@@ -259,7 +256,18 @@ class Permission(object):
 
         :param identity: The identity
         """
-        return identity.can(self)
+        if not self.needs:
+            return True
+        else:
+            return self.needs.intersection(identity.provides)
+
+    def can(self):
+        """Whether the required context for this permission has access
+
+        This creates an identity context and tests whether it can access this
+        permission
+        """
+        return self.require().can()
 
 
 def session_identity_loader():
