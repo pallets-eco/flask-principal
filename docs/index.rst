@@ -25,6 +25,27 @@ Flask Principal
 
 .. automodule:: flaskext.principal
 
+.. graphviz::
+
+       digraph foo {
+        "Flask" [shape="circle"]
+        "baz" [shape="circle"]
+        "Need1" [shape="circle"]
+        "Need2" [shape="circle"]
+        "Need3" [shape="circle"]
+        "Need4" [shape="circle"]
+        "Identity" [shape="box", style="rounded,filled"]
+        "Permission" [shape="box", style="rounded,filled"]
+        "Permission" -> "Need1" ;
+        "Permission" -> "Need2" ;
+        "Permission" -> "Need3" ;
+        "Permission" -> "Need4" ;
+        "bar" -> "baz" [label="what fun" decorate="true"];
+        "baz" -> "faz";
+        "maz" -> "faz";
+        }
+
+
 Introduction
 ------------
 
