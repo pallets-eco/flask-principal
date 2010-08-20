@@ -228,7 +228,7 @@ class Permission(object):
     """
     def __init__(self, *needs):
         self.needs = set(needs)
-        self.deny = set()
+        self.denies = set()
         """A set of needs, any of which must be present in an identity to have
         access.
         """
@@ -260,9 +260,10 @@ class Permission(object):
         Return Denial equivalent (needs -> deny, deny -> needs)
         """
 
-        d = Denial(*self.deny)
-        d.needs.update(self.needs)
-        return d
+        p = Permission()
+        p.needs.update(self.needs)
+        p.deny.update(self.denies)
+        return p
 
     def union(self, other):
         """Create a new permission with the requirements of the union of this
@@ -271,8 +272,8 @@ class Permission(object):
         :param other: The other permission
         """
         p = Permission(*self.needs.union(other.needs))
-        p.deny.update(self.deny)
-        p.deny.update(other.deny)
+        p.denies.update(self.denies)
+        p.denies.update(other.denies)
         return p
 
     def issubset(self, other):
@@ -281,19 +282,21 @@ class Permission(object):
         :param other: The other permission
         """
         return self.needs.issubset(other.needs) and \
-               self.deny.issubset(other.deny)
+               self.denies.issubset(other.denies)
 
     def allows(self, identity):
         """Whether the identity can access this permission.
 
         :param identity: The identity
         """
-        if not self.needs:
-            return True
-        else:
-            return self.needs.intersection(identity.provides) and not \
-                   self.deny.intersection(identity.provides)
+        if self.needs and not self.needs.intersection(identity.provides):
+            return False
 
+        if self.denies and self.denies.intersection(identity.provides):
+            return False
+
+        return True
+       
     def can(self):
         """Whether the required context for this permission has access
 
@@ -309,7 +312,7 @@ class Denial(Permission):
     """
 
     def __init__(self, *deny):
-        self.deny = set(deny)
+        self.denies = set(deny)
         self.needs = set()
 
 

@@ -21,7 +21,7 @@ admin_or_editor = Permission(RoleNeed('admin'), RoleNeed('editor'))
 
 editor_permission = Permission(RoleNeed('editor'))
 
-admin_denial = Denial(RoleNeed('admin'))
+admin_denied = Denial(RoleNeed('admin'))
 
 def mkapp():
     app = Flask(__name__)
@@ -88,7 +88,7 @@ def mkapp():
                 pass
     
     @app.route('/j')
-    def h():
+    def j():
         i = Identity('james')
         identity_changed.send(app, identity=i)
         with admin_permission.require(403):
@@ -113,7 +113,26 @@ def mkapp():
             s.append("now admin")  
         return Response('\n'.join(s))
 
+
+    @app.route("/m")
+    def m():
+        with admin_denied.require():
+           pass 
+            
+        return Response("OK")
+
+
+    @app.route("/n")
+    def n():
+        i = mkadmin()
+        identity_changed.send(app, identity=i)
+        with admin_denied.require():
+            pass
+
+        return Response("OK")
+
     return app
+
 
 def mkadmin():
     i = Identity('ali')
@@ -220,9 +239,14 @@ def test_permission_bool():
 
     client = mkapp().test_client()
     response = client.open('/l')
-    print response.data
     assert response.status_code == 200
     assert 'not admin' in response.data
     assert 'now admin' in response.data
 
 
+def test_denied_passes():
+
+    client = mkapp().test_client()
+    response = client.open("/m")
+    print response.status_code
+    assert response.status_code == 200
