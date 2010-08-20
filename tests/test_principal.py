@@ -148,7 +148,7 @@ def test_permission_union():
 
 def test_permission_union_denial():
     p1 = Permission(('a', 'b'))
-    p2 = Permission(('a', 'c'))
+    p2 = Denial(('a', 'c'))
     p3 = p1.union(p2)
     assert p1.issubset(p3)
     assert p2.issubset(p3)
