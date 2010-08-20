@@ -280,7 +280,8 @@ class Permission(object):
 
         :param other: The other permission
         """
-        return self.needs.issubset(other.needs)
+        return self.needs.issubset(other.needs) and \
+               self.deny.issubset(other.deny)
 
     def allows(self, identity):
         """Whether the identity can access this permission.

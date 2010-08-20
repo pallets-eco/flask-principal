@@ -3,7 +3,7 @@ from py.test import raises
 
 from flask import Flask, Response, g, session
 
-from flaskext.principal import Principal, Permission, RoleNeed, \
+from flaskext.principal import Principal, Permission, Denial, RoleNeed, \
     PermissionDenied, identity_changed, Identity, identity_loaded
 
 
@@ -21,6 +21,7 @@ admin_or_editor = Permission(RoleNeed('admin'), RoleNeed('editor'))
 
 editor_permission = Permission(RoleNeed('editor'))
 
+admin_denial = Denial(RoleNeed('admin'))
 
 def mkapp():
     app = Flask(__name__)
@@ -145,6 +146,14 @@ def test_permission_union():
     assert p1.issubset(p3)
     assert p2.issubset(p3)
 
+def test_permission_union_denial():
+    p1 = Permission(('a', 'b'))
+    p2 = Permission(('a', 'c'))
+    p3 = p1.union(p2)
+    assert p1.issubset(p3)
+    assert p2.issubset(p3)
+
+
 def test_identity_changed():
     client = mkapp().test_client()
     assert client.open('/e').data == 'hello'
@@ -215,3 +224,5 @@ def test_permission_bool():
     assert response.status_code == 200
     assert 'not admin' in response.data
     assert 'now admin' in response.data
+
+
