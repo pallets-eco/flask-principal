@@ -1,7 +1,7 @@
 
 from py.test import raises
 
-from flask import Flask, Response, g, session
+from flask import Flask, Response
 
 from flaskext.principal import Principal, Permission, Denial, RoleNeed, \
     PermissionDenied, identity_changed, Identity, identity_loaded
@@ -31,7 +31,6 @@ def mkapp():
     p = Principal(app)
 
     identity_loaded.connect(_on_principal_init)
-
 
     @app.route('/')
     def index():
@@ -100,7 +99,6 @@ def mkapp():
     def k():
         return Response('hello')
 
-
     @app.route('/l')
     def l():
         s = []
@@ -113,14 +111,12 @@ def mkapp():
             s.append("now admin")  
         return Response('\n'.join(s))
 
-
     @app.route("/m")
     def m():
         with admin_denied.require():
            pass 
             
         return Response("OK")
-
 
     @app.route("/n")
     def n():
@@ -172,6 +168,13 @@ def test_permission_union_denial():
     assert p1.issubset(p3)
     assert p2.issubset(p3)
 
+
+def test_negate_permission():
+
+    p = Permission(('a', 'b'))
+    d = p.negate()
+    print d.denies
+    assert ('a', 'b') in d.denies
 
 def test_identity_changed():
     client = mkapp().test_client()

@@ -257,12 +257,12 @@ class Permission(object):
 
     def negate(self):
         """
-        Return Denial equivalent (needs -> deny, deny -> needs)
+        Returns negative of current state (needs->denies, denies->needs) 
         """
 
         p = Permission()
-        p.needs.update(self.needs)
-        p.deny.update(self.denies)
+        p.needs.update(self.denies)
+        p.denies.update(self.needs)
         return p
 
     def union(self, other):
@@ -314,7 +314,6 @@ class Denial(Permission):
     def __init__(self, *deny):
         self.denies = set(deny)
         self.needs = set()
-
 
 
 def session_identity_loader():
