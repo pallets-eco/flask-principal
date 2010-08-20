@@ -93,7 +93,12 @@ def mkapp():
         with admin_permission.require(403):
             with editor_permission.require(403):
                 pass
-
+    
+    @app.route('/k')
+    @admin_permission.require(403)
+    @editor_permission.require(403)
+    def k():
+        return Response('hello')
 
     return app
 
@@ -154,6 +159,13 @@ def test_and_permissions_view_with_http_exc():
     client = mkapp().test_client()
     response = client.open("/j")
     assert response.status_code == 403
+
+def test_and_permissions_view_with_http_exc_decorated():
+    client = mkapp().test_client()
+    response = client.open("/k")
+    assert response.status_code == 403
+
+
 
 
 
