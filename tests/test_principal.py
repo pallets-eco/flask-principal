@@ -85,6 +85,15 @@ def mkapp():
         with admin_permission.require():
             with editor_permission.require():
                 pass
+    
+    @app.route('/j')
+    def h():
+        i = Identity('james')
+        identity_changed.send(app, identity=i)
+        with admin_permission.require(403):
+            with editor_permission.require(403):
+                pass
+
 
     return app
 
@@ -140,5 +149,12 @@ def test_and_permissions_view_denied():
 def test_and_permissions_view():
     client = mkapp().test_client()
     raises(PermissionDenied, client.open, '/g')
+
+def test_and_permissions_view_with_http_exc():
+    client = mkapp().test_client()
+    response = client.open("/j")
+    assert response.status_code == 403
+
+
 
 

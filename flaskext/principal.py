@@ -15,7 +15,7 @@ from functools import partial, wraps
 from collections import namedtuple, deque
 
 
-from flask import g, session, current_app
+from flask import g, session, current_app, abort
 from flask.signals import Namespace
 
 
@@ -177,8 +177,9 @@ class IdentityContext(object):
     flow is continued (context manager) or the function is executed (decorator).
     """
 
-    def __init__(self, permission):
+    def __init__(self, permission, http_exception=None):
         self.permission = permission
+        self.http_exception = http_exception
         """The permission of this principal
         """
 
@@ -209,6 +210,8 @@ class IdentityContext(object):
     def __enter__(self):
         # check the permission here
         if not self.can():
+            if self.http_exception:
+                abort(self.http_exception)
             raise PermissionDenied(self.permission)
 
     def __exit__(self, *exc):
@@ -229,12 +232,12 @@ class Permission(object):
         access.
         """
 
-    def require(self):
+    def require(self, http_exception=None):
         """Create a principal for this permission.
 
         The principal may be used as a context manager, or a decroator.
         """
-        return IdentityContext(self)
+        return IdentityContext(self, http_exception)
 
     def union(self, other):
         """Create a new permission with the requirements of the union of this
