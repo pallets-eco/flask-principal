@@ -228,6 +228,7 @@ class Permission(object):
     """
     def __init__(self, *needs):
         self.needs = set(needs)
+        self.deny = set()
         """A set of needs, any of which must be present in an identity to have
         access.
         """
@@ -254,13 +255,25 @@ class Permission(object):
         """
         return IdentityContext(self, http_exception)
 
+    def negate(self):
+        """
+        Return Denial equivalent (needs -> deny, deny -> needs)
+        """
+
+        d = Denial(*self.deny)
+        d.needs.update(self.needs)
+        return d
+
     def union(self, other):
         """Create a new permission with the requirements of the union of this
         and other.
 
         :param other: The other permission
         """
-        return Permission(*self.needs.union(other.needs))
+        p = Permission(*self.needs.union(other.needs))
+        p.deny.update(self.deny)
+        p.deny.update(other.deny)
+        return p
 
     def issubset(self, other):
         """Whether this permission needs are a subset of another
@@ -277,7 +290,8 @@ class Permission(object):
         if not self.needs:
             return True
         else:
-            return self.needs.intersection(identity.provides)
+            return self.needs.intersection(identity.provides) and not \
+                   self.deny.intersection(identity.provides)
 
     def can(self):
         """Whether the required context for this permission has access
@@ -286,6 +300,17 @@ class Permission(object):
         permission
         """
         return self.require().can()
+
+
+class Denial(Permission):
+    """
+    Shortcut class for passing denied needs.
+    """
+
+    def __init__(*deny):
+        self.deny = set(deny)
+        self.needs = set()
+
 
 
 def session_identity_loader():
