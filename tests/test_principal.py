@@ -99,6 +99,19 @@ def mkapp():
     def k():
         return Response('hello')
 
+
+    @app.route('/l')
+    def l():
+        s = []
+        if not admin_or_editor:
+            s.append("not admin")
+
+        i = Identity('ali')
+        identity_changed.send(app, identity=i)
+        if admin_or_editor:
+            s.append("now admin")  
+        return Response('\n'.join(s))
+
     return app
 
 def mkadmin():
@@ -176,3 +189,11 @@ def test_and_permissions_view_with_custom_errhandler():
     response = client.open("/k")
     assert response.status_code == 200
 
+def test_permission_bool():
+
+    client = mkapp().test_client()
+    response = client.open('/l')
+    print response.data
+    assert response.status_code == 200
+    assert 'not admin' in response.data
+    assert 'now admin' in response.data

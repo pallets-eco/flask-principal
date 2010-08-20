@@ -232,14 +232,19 @@ class Permission(object):
         access.
         """
 
-    def __bool__(self):
-
-        return self.can()
+    def __nonzero__(self):
+        return bool(self.can())
 
     def require(self, http_exception=None):
         """Create a principal for this permission.
 
         The principal may be used as a context manager, or a decroator.
+
+        If ``http_exception`` is passed then ``abort()`` will be called
+        with the HTTP exception code. Otherwise a ``PermissionDenied``
+        exception will be raised.
+
+        :param http_exception: the HTTP exception code (403, 401 etc)
         """
         return IdentityContext(self, http_exception)
 
