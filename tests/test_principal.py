@@ -248,5 +248,9 @@ def test_denied_passes():
 
     client = mkapp().test_client()
     response = client.open("/m")
-    print response.status_code
     assert response.status_code == 200
+
+def test_denied_fails():
+
+    client = mkapp().test_client()
+    raises(PermissionDenied, client.open, '/n')
