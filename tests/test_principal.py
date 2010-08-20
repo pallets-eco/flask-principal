@@ -22,7 +22,6 @@ admin_or_editor = Permission(RoleNeed('admin'), RoleNeed('editor'))
 editor_permission = Permission(RoleNeed('editor'))
 
 
-
 def mkapp():
     app = Flask(__name__)
     app.secret_key = 'notverysecret'

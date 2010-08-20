@@ -232,6 +232,10 @@ class Permission(object):
         access.
         """
 
+    def __bool__(self):
+
+        return self.can()
+
     def require(self, http_exception=None):
         """Create a principal for this permission.
 
