@@ -235,6 +235,12 @@ class Permission(object):
     def __nonzero__(self):
         return bool(self.can())
 
+    def __and__(self, other):
+        return self.union(other)
+
+    def __contains__(self, other):
+        return other.issubset(self)
+
     def require(self, http_exception=None):
         """Create a principal for this permission.
 

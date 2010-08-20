@@ -189,6 +189,24 @@ def test_and_permissions_view_with_custom_errhandler():
     response = client.open("/k")
     assert response.status_code == 200
 
+def test_permission_and():
+
+    p1 = Permission(RoleNeed('boss'))
+    p2 = Permission(RoleNeed('lackey'))
+
+    p3 = p1 & p2
+    p4 = p1.union(p2)
+
+    assert p3.needs == p4.needs
+
+def test_contains():
+
+    p1 = Permission(RoleNeed('boss'), RoleNeed('lackey'))
+    p2 = Permission(RoleNeed('lackey'))
+
+    assert p2.issubset(p1)
+    assert p2 in p1
+
 def test_permission_bool():
 
     client = mkapp().test_client()

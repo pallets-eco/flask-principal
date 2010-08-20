@@ -30,6 +30,10 @@ setup(
     install_requires=[
         'Flask', 'blinker'
     ],
+    tests_require=[
+        'py', 
+    ],
+    test_suite='nose.collector',
     classifiers=[
         'Development Status :: 4 - Beta',
         'Environment :: Web Environment',
