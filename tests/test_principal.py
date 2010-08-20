@@ -13,6 +13,14 @@ def _on_principal_init(sender, identity):
 
 class ReraiseException(Exception):
     """For checking reraising"""
+    
+admin_permission = Permission(RoleNeed('admin'))
+anon_permission = Permission()
+
+admin_or_editor = Permission(RoleNeed('admin'), RoleNeed('editor'))
+
+editor_permission = Permission(RoleNeed('editor'))
+
 
 
 def mkapp():
@@ -21,13 +29,6 @@ def mkapp():
     app.debug = True
 
     p = Principal(app)
-
-    admin_permission = Permission(RoleNeed('admin'))
-    anon_permission = Permission()
-
-    admin_or_editor = Permission(RoleNeed('admin'), RoleNeed('editor'))
-
-    editor_permission = Permission(RoleNeed('editor'))
 
     identity_loaded.connect(_on_principal_init)
 
@@ -96,7 +97,6 @@ def mkapp():
     
     @app.route('/k')
     @admin_permission.require(403)
-    @editor_permission.require(403)
     def k():
         return Response('hello')
 
@@ -165,8 +165,15 @@ def test_and_permissions_view_with_http_exc_decorated():
     response = client.open("/k")
     assert response.status_code == 403
 
+def test_and_permissions_view_with_custom_errhandler():
+    app = mkapp()
 
+    @app.errorhandler(403)
+    def handle_permission_denied(error):
+        assert error.description == admin_permission
+        return Response("OK")
 
-
-
+    client = app.test_client()
+    response = client.open("/k")
+    assert response.status_code == 200
 
