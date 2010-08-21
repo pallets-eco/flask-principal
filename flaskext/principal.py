@@ -117,7 +117,6 @@ class PermissionDenied(RuntimeError):
     """Permission denied to the resource
     """
 
-
 class Identity(object):
     """Represent the user's identity.
 
@@ -255,6 +254,21 @@ class Permission(object):
         """
         return IdentityContext(self, http_exception)
 
+    def test(self, http_exception=None):
+        """
+        Checks if permission available and raises relevant exception 
+        if not. This is useful if you just want to check permission
+        without wrapping everything in a require() block.
+
+        This is equivalent to::
+
+            with permission.require():
+                pass
+        """
+
+        with self.require(http_exception):
+            pass
+        
     def negate(self):
         """
         Returns negative of current state (needs->denies, denies->needs) 
