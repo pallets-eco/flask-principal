@@ -311,8 +311,8 @@ class Denial(Permission):
     Shortcut class for passing denied needs.
     """
 
-    def __init__(self, *deny):
-        self.denies = set(deny)
+    def __init__(self, *denies):
+        self.denies = set(denies)
         self.needs = set()
 
 
