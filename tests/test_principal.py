@@ -173,8 +173,8 @@ def test_negate_permission():
 
     p = Permission(('a', 'b'))
     d = p.negate()
-    print d.denies
-    assert ('a', 'b') in d.denies
+    print d.excludes
+    assert ('a', 'b') in d.excludes
 
 def test_identity_changed():
     client = mkapp().test_client()

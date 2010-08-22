@@ -227,7 +227,7 @@ class Permission(object):
     """
     def __init__(self, *needs):
         self.needs = set(needs)
-        self.denies = set()
+        self.excludes = set()
         """A set of needs, any of which must be present in an identity to have
         access.
         """
@@ -271,12 +271,12 @@ class Permission(object):
         
     def negate(self):
         """
-        Returns negative of current state (needs->denies, denies->needs) 
+        Returns negative of current state (needs->excludes, excludes->needs) 
         """
 
         p = Permission()
-        p.needs.update(self.denies)
-        p.denies.update(self.needs)
+        p.needs.update(self.excludes)
+        p.excludes.update(self.needs)
         return p
 
     def union(self, other):
@@ -286,8 +286,8 @@ class Permission(object):
         :param other: The other permission
         """
         p = Permission(*self.needs.union(other.needs))
-        p.denies.update(self.denies)
-        p.denies.update(other.denies)
+        p.excludes.update(self.excludes)
+        p.excludes.update(other.excludes)
         return p
 
     def issubset(self, other):
@@ -296,7 +296,7 @@ class Permission(object):
         :param other: The other permission
         """
         return self.needs.issubset(other.needs) and \
-               self.denies.issubset(other.denies)
+               self.excludes.issubset(other.excludes)
 
     def allows(self, identity):
         """Whether the identity can access this permission.
@@ -306,7 +306,7 @@ class Permission(object):
         if self.needs and not self.needs.intersection(identity.provides):
             return False
 
-        if self.denies and self.denies.intersection(identity.provides):
+        if self.excludes and self.excludes.intersection(identity.provides):
             return False
 
         return True
@@ -322,11 +322,11 @@ class Permission(object):
 
 class Denial(Permission):
     """
-    Shortcut class for passing denied needs.
+    Shortcut class for passing excluded needs.
     """
 
-    def __init__(self, *denies):
-        self.denies = set(denies)
+    def __init__(self, *excludes):
+        self.excludes = set(excludes)
         self.needs = set()
 
 
