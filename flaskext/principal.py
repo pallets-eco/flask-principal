@@ -242,6 +242,11 @@ class Permission(object):
         """Does the same thing as ``self.union(other)``
         """
         return self.union(other)
+    
+    def __or__(self, other):
+        """Does the same thing as ``self.union(other)``
+        """
+        return self.difference(other)
 
     def __contains__(self, other):
         """Does the same thing as ``other.issubset(self)``.
@@ -293,8 +298,16 @@ class Permission(object):
         :param other: The other permission
         """
         p = Permission(*self.needs.union(other.needs))
-        p.excludes.update(self.excludes)
-        p.excludes.update(other.excludes)
+        p.excludes.update(self.excludes.union(other.excludes))
+        return p
+
+    def difference(self, other):
+        """Create a new permission consisting of requirements in this 
+        permission and not in the other.
+        """
+
+        p = Permission(*self.needs.difference(other.needs))
+        p.excludes.update(self.excludes.difference(other.excludes))
         return p
 
     def issubset(self, other):

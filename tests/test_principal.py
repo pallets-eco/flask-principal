@@ -161,6 +161,15 @@ def test_permission_union():
     assert p1.issubset(p3)
     assert p2.issubset(p3)
 
+def test_permission_difference():
+    p1 = Permission(('a', 'b'), ('a', 'c'))
+    p2 = Permission(('a', 'c'), ('d', 'e'))
+    p3 = p1.difference(p2)
+    assert p3.needs == set([('a', 'b')])
+    p4 = p2.difference(p1)
+    assert p4.needs == set([('d', 'e')])
+
+
 def test_permission_union_denial():
     p1 = Permission(('a', 'b'))
     p2 = Denial(('a', 'c'))
@@ -168,6 +177,13 @@ def test_permission_union_denial():
     assert p1.issubset(p3)
     assert p2.issubset(p3)
 
+def test_permission_difference_denial():
+    p1 = Denial(('a', 'b'), ('a', 'c'))
+    p2 = Denial(('a', 'c'), ('d', 'e'))
+    p3 = p1.difference(p2)
+    assert p3.excludes == set([('a', 'b')])
+    p4 = p2.difference(p1)
+    assert p4.excludes == set([('d', 'e')])
 
 def test_reverse_permission():
 
@@ -230,6 +246,16 @@ def test_permission_and():
 
     assert p3.needs == p4.needs
 
+def test_permission_or():
+
+    p1 = Permission(RoleNeed('boss'), RoleNeed('lackey'))
+    p2 = Permission(RoleNeed('lackey'), RoleNeed('underling'))
+
+    p3 = p1 | p2
+    p4 = p1.union(p2)
+
+    assert p3.needs == p4.needs
+
 def test_contains():
 
     p1 = Permission(RoleNeed('boss'), RoleNeed('lackey'))
@@ -245,7 +271,6 @@ def test_permission_bool():
     assert response.status_code == 200
     assert 'not admin' in response.data
     assert 'now admin' in response.data
-
 
 def test_denied_passes():
 
