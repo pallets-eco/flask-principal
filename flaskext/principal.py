@@ -260,7 +260,8 @@ class Permission(object):
 
         If ``http_exception`` is passed then ``abort()`` will be called
         with the HTTP exception code. Otherwise a ``PermissionDenied``
-        exception will be raised.
+        exception will be raised if the identity does not meet the 
+        requirements.
 
         :param http_exception: the HTTP exception code (403, 401 etc)
         """
