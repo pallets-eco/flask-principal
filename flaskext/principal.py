@@ -244,7 +244,7 @@ class Permission(object):
         return self.union(other)
     
     def __or__(self, other):
-        """Does the same thing as ``self.union(other)``
+        """Does the same thing as ``self.difference(other)``
         """
         return self.difference(other)
 
