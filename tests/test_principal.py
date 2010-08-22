@@ -127,8 +127,18 @@ def mkapp():
 
         return Response("OK")
 
-    return app
+    
+    @app.route("/o")
+    def o():
+        admin_or_editor.test()
+        return Response("OK")
 
+    @app.route("/p")
+    def p():
+        admin_or_editor.test(404)
+        return Response("OK")
+
+    return app
 
 def mkadmin():
     i = Identity('ali')
@@ -252,7 +262,7 @@ def test_permission_or():
     p2 = Permission(RoleNeed('lackey'), RoleNeed('underling'))
 
     p3 = p1 | p2
-    p4 = p1.union(p2)
+    p4 = p1.difference(p2)
 
     assert p3.needs == p4.needs
 
@@ -282,3 +292,14 @@ def test_denied_fails():
 
     client = mkapp().test_client()
     raises(PermissionDenied, client.open, '/n')
+
+def test_permission_test():
+    
+    client = mkapp().test_client()
+    raises(PermissionDenied, client.open, '/o')
+    
+def test_permission_test_with_http_exc():
+    
+    client = mkapp().test_client()
+    response = client.open("/p")
+    assert response.status_code == 404
