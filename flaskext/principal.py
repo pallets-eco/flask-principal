@@ -276,9 +276,9 @@ class Permission(object):
         with self.require(http_exception):
             pass
         
-    def opposite(self):
+    def reverse(self):
         """
-        Returns opposite of current state (needs->excludes, excludes->needs) 
+        Returns reverse of current state (needs->excludes, excludes->needs) 
         """
 
         p = Permission()

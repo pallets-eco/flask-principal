@@ -169,10 +169,10 @@ def test_permission_union_denial():
     assert p2.issubset(p3)
 
 
-def test_opposite_permission():
+def test_reverse_permission():
 
     p = Permission(('a', 'b'))
-    d = p.opposite()
+    d = p.reverse()
     print d.excludes
     assert ('a', 'b') in d.excludes
 
