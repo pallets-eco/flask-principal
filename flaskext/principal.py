@@ -226,19 +226,26 @@ class Permission(object):
     :param needs: The needs for this permission
     """
     def __init__(self, *needs):
-        self.needs = set(needs)
-        self.excludes = set()
         """A set of needs, any of which must be present in an identity to have
         access.
         """
 
+        self.needs = set(needs)
+        self.excludes = set()
+
     def __nonzero__(self):
+        """Equivalent to ``self.can()``.
+        """
         return bool(self.can())
 
     def __and__(self, other):
+        """Does the same thing as ``self.union(other)``
+        """
         return self.union(other)
 
     def __contains__(self, other):
+        """Does the same thing as ``other.issubset(self)``.
+        """
         return other.issubset(self)
 
     def require(self, http_exception=None):
@@ -269,9 +276,9 @@ class Permission(object):
         with self.require(http_exception):
             pass
         
-    def negate(self):
+    def opposite(self):
         """
-        Returns negative of current state (needs->excludes, excludes->needs) 
+        Returns opposite of current state (needs->excludes, excludes->needs) 
         """
 
         p = Permission()
