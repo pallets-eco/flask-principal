@@ -4,47 +4,6 @@ Flask Principal
 
 *"I am that I am"*
 
-.. graphviz::
-
-
-    digraph g {
-        rankdir="LR" ;
-        node [ colorscheme="pastel19" ];
-        fixedsize = "true" ;
-        i [label="Identity", shape="circle" style="filled" width="1.5", fillcolor="1"] ;
-        p [label="Permission", shape="circle" style="filled" width="1.5" fillcolor="2"] ;
-        n [label="<all> Needs|{<n1>RoleNeed|<n2>ActionNeed}", shape="Mrecord" style="filled" fillcolor="3"] ;
-        c [label="IdentityContext", shape="box" style="filled,rounded" fillcolor="4"] ;
-        p -> n:all ;
-        c -> i ;
-        c -> p ;
-        i -> n:n1 ;
-        i -> n:n2 ;
-
-    }
-
-.. automodule:: flaskext.principal
-
-.. graphviz::
-
-       digraph foo {
-        "Flask" [shape="circle"]
-        "baz" [shape="circle"]
-        "Need1" [shape="circle"]
-        "Need2" [shape="circle"]
-        "Need3" [shape="circle"]
-        "Need4" [shape="circle"]
-        "Identity" [shape="box", style="rounded,filled"]
-        "Permission" [shape="box", style="rounded,filled"]
-        "Permission" -> "Need1" ;
-        "Permission" -> "Need2" ;
-        "Permission" -> "Need3" ;
-        "Permission" -> "Need4" ;
-        "bar" -> "baz" [label="what fun" decorate="true"];
-        "baz" -> "faz";
-        "maz" -> "faz";
-        }
-
 
 Introduction
 ------------
@@ -91,6 +50,31 @@ The major components are the Identity, Needs, Permission, and the IdentityContex
        
     3. An IdentityContext is the context of a certain identity against a certain
        Permission. It can be used as a context manager, or a decorator.
+
+
+.. graphviz::
+
+
+    digraph g {
+        rankdir="LR" ;
+        node [ colorscheme="pastel19" ];
+        fixedsize = "true" ;
+        i [label="Identity", shape="circle" style="filled" width="1.5", fillcolor="1"] ;
+        p [label="Permission", shape="circle" style="filled" width="1.5" fillcolor="2"] ;
+        n [label="<all> Needs|{<n1>RoleNeed|<n2>ActionNeed}", shape="Mrecord" style="filled" fillcolor="3"] ;
+        c [label="IdentityContext", shape="box" style="filled,rounded" fillcolor="4"] ;
+        p -> n:all ;
+        c -> i ;
+        c -> p ;
+        i -> n:n1 ;
+        i -> n:n2 ;
+
+    }
+
+.. automodule:: flaskext.principal
+
+
+
 
 
 Links
