@@ -8,3 +8,6 @@ docs.build deps="docs.clean" PYTHONPATH=".":
 docs.upload:
     python setup.py upload_sphinx
 
+sdist:
+    python setup.py sdist --formats=bztar,gztar,zip upload
+
