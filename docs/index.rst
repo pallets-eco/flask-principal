@@ -71,10 +71,6 @@ The major components are the Identity, Needs, Permission, and the IdentityContex
 
     }
 
-.. automodule:: flaskext.principal
-
-
-
 
 
 Links
@@ -92,7 +88,7 @@ restriction is easy to define as both a decorator and a context manager. A
 simple quickstart example is presented with commenting::
 
     from flask import Flask, Response
-    from flaskext.principal import Principal, Permission, RoleNeed
+    from flask_principal import Principal, Permission, RoleNeed
 
     app = Flask(__name__)
 
@@ -122,7 +118,7 @@ that a request has been authenticated. For example::
 
 
     from flask import current_app
-    from flaskext.principal import Identity, identity_changed
+    from flask_principal import Identity, identity_changed
 
     def login_view(req):
         username = req.form.get('username')
@@ -137,7 +133,7 @@ User information providers should connect to the `identity-loaded` signal to
 add any additional information to the Identity instance such as roles. For
 example::
 
-    from flaskext.principal import indentity_loaded, RoleNeed, UserNeed
+    from flask_principal import indentity_loaded, RoleNeed, UserNeed
 
     @identity_loaded.connect_via(app)
     def on_identity_loaded(sender, identity):
@@ -155,23 +151,23 @@ API
 Starting the extension
 ----------------------
 
-.. autoclass:: flaskext.principal.Principal
+.. autoclass:: flask_principal.Principal
     :members:
 
 
 Main Types
 ----------
 
-.. autoclass:: flaskext.principal.Permission
+.. autoclass:: flask_principal.Permission
     :members:
 
-.. autoclass:: flaskext.principal.Identity
+.. autoclass:: flask_principal.Identity
     :members:
 
-.. autoclass:: flaskext.principal.AnonymousIdentity
+.. autoclass:: flask_principal.AnonymousIdentity
     :members:
 
-.. autoclass:: flaskext.principal.IdentityContext
+.. autoclass:: flask_principal.IdentityContext
     :members:
 
 
@@ -179,20 +175,20 @@ Main Types
 Predefined Need Types
 ---------------------
 
-.. autoclass:: flaskext.principal.Need
+.. autoclass:: flask_principal.Need
 
-.. autoattribute:: flaskext.principal.RoleNeed
+.. autoattribute:: flask_principal.RoleNeed
 
-.. autoattribute:: flaskext.principal.UserNeed
+.. autoattribute:: flask_principal.UserNeed
 
-.. autoattribute:: flaskext.principal.ItemNeed
+.. autoattribute:: flask_principal.ItemNeed
 
 Relevant Signals
 ----------------
 
-.. autoattribute:: flaskext.principal.identity_changed
+.. autoattribute:: flask_principal.identity_changed
 
-.. autoattribute:: flaskext.principal.identity_loaded
+.. autoattribute:: flask_principal.identity_loaded
 
 
 Indices and tables
