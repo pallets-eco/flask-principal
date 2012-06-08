@@ -3,7 +3,7 @@ from py.test import raises
 
 from flask import Flask, Response
 
-from flaskext.principal import Principal, Permission, Denial, RoleNeed, \
+from flask_principal import Principal, Permission, Denial, RoleNeed, \
     PermissionDenied, identity_changed, Identity, identity_loaded
 
 
@@ -13,7 +13,7 @@ def _on_principal_init(sender, identity):
 
 class ReraiseException(Exception):
     """For checking reraising"""
-    
+
 admin_permission = Permission(RoleNeed('admin'))
 anon_permission = Permission()
 
@@ -85,7 +85,7 @@ def mkapp():
         with admin_permission.require():
             with editor_permission.require():
                 pass
-    
+
     @app.route('/j')
     def j():
         i = Identity('james')
@@ -93,7 +93,7 @@ def mkapp():
         with admin_permission.require(403):
             with editor_permission.require(403):
                 pass
-    
+
     @app.route('/k')
     @admin_permission.require(403)
     def k():
@@ -108,14 +108,14 @@ def mkapp():
         i = Identity('ali')
         identity_changed.send(app, identity=i)
         if admin_or_editor:
-            s.append("now admin")  
+            s.append("now admin")
         return Response('\n'.join(s))
 
     @app.route("/m")
     def m():
         with admin_denied.require():
-           pass 
-            
+           pass
+
         return Response("OK")
 
     @app.route("/n")
@@ -127,7 +127,7 @@ def mkapp():
 
         return Response("OK")
 
-    
+
     @app.route("/o")
     def o():
         admin_or_editor.test()
@@ -294,12 +294,12 @@ def test_denied_fails():
     raises(PermissionDenied, client.open, '/n')
 
 def test_permission_test():
-    
+
     client = mkapp().test_client()
     raises(PermissionDenied, client.open, '/o')
-    
+
 def test_permission_test_with_http_exc():
-    
+
     client = mkapp().test_client()
     response = client.open("/p")
     assert response.status_code == 404
