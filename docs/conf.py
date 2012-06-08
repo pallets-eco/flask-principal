@@ -45,7 +45,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Flask Principal'
-copyright = u'2010, Ali Afshar'
+copyright = u'2012, Matt Wright'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -190,8 +190,8 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'FlaskPrincipal.tex', u'Flask Principal Documentation',
-   u'Ali Afshar', 'manual'),
+  ('index', 'FlaskPrincipal.tex', u'Flask-Principal Documentation',
+   u'Matt Wright', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -218,7 +218,7 @@ latex_documents = [
 # (source start file, name, description, authors, manual section).
 man_pages = [
     ('index', 'flask-principal', u'Flask-Principal Documentation',
-     [u'Ali Afshar'], 1)
+     [u'Matt Wright'], 1)
 ]
 
 # If true, show URL addresses after external links.
@@ -232,7 +232,7 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
   ('index', 'Flask-Pecurity', u'Flask-Principal Documentation',
-   u'Ali Afshar', 'Flask-Principal', 'Identity management for Flask',
+   u'Matt Wright', 'Flask-Principal', 'Identity management for Flask',
    'Miscellaneous'),
 ]
 
@@ -250,9 +250,9 @@ texinfo_documents = [
 
 # Bibliographic Dublin Core info.
 epub_title = u'Flask-Security'
-epub_author = u'Ali Afshar'
-epub_publisher = u'Ali Afshar'
-epub_copyright = u'2012, Ali Afshar'
+epub_author = u'Matt Wright'
+epub_publisher = u'Matt Wright'
+epub_copyright = u'2012, Matt Wright'
 
 # The language of the text. It defaults to the language option
 # or en if the language is not set.
