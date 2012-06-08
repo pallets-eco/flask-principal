@@ -10,10 +10,15 @@
 
 """
 
+from __future__ import with_statement
+
 import sys
 from functools import partial, wraps
-from collections import namedtuple, deque
-
+from collections import deque
+try:
+    from collections import namedtuple
+except ImportError:
+    from namedtuple import namedtuple
 
 from flask import g, session, current_app, abort
 from flask.signals import Namespace
@@ -242,7 +247,7 @@ class Permission(object):
         """Does the same thing as ``self.union(other)``
         """
         return self.union(other)
-    
+
     def __or__(self, other):
         """Does the same thing as ``self.difference(other)``
         """
@@ -260,7 +265,7 @@ class Permission(object):
 
         If ``http_exception`` is passed then ``abort()`` will be called
         with the HTTP exception code. Otherwise a ``PermissionDenied``
-        exception will be raised if the identity does not meet the 
+        exception will be raised if the identity does not meet the
         requirements.
 
         :param http_exception: the HTTP exception code (403, 401 etc)
@@ -269,7 +274,7 @@ class Permission(object):
 
     def test(self, http_exception=None):
         """
-        Checks if permission available and raises relevant exception 
+        Checks if permission available and raises relevant exception
         if not. This is useful if you just want to check permission
         without wrapping everything in a require() block.
 
@@ -281,10 +286,10 @@ class Permission(object):
 
         with self.require(http_exception):
             pass
-        
+
     def reverse(self):
         """
-        Returns reverse of current state (needs->excludes, excludes->needs) 
+        Returns reverse of current state (needs->excludes, excludes->needs)
         """
 
         p = Permission()
@@ -303,7 +308,7 @@ class Permission(object):
         return p
 
     def difference(self, other):
-        """Create a new permission consisting of requirements in this 
+        """Create a new permission consisting of requirements in this
         permission and not in the other.
         """
 
@@ -331,7 +336,7 @@ class Permission(object):
             return False
 
         return True
-       
+
     def can(self):
         """Whether the required context for this permission has access
 
