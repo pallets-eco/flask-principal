@@ -20,7 +20,7 @@ try:
 except ImportError:
     from namedtuple import namedtuple
 
-from flask import g, session, current_app, abort
+from flask import g, session, current_app, abort, request
 from flask.signals import Namespace
 
 
@@ -377,11 +377,13 @@ class Principal(object):
     :param use_sessions: Whether to use sessions to extract and store
                          identification.
     """
-    def __init__(self, app=None, use_sessions=True):
+    def __init__(self, app=None, use_sessions=True, skip_static=False):
         self.identity_loaders = deque()
         self.identity_savers = deque()
         # XXX This will probably vanish for a better API
         self.use_sessions = use_sessions
+        self.skip_static = skip_static
+
         if app is not None:
             self._init_app(app)
 
@@ -398,6 +400,9 @@ class Principal(object):
 
         :param identity: The identity to set
         """
+        if self._is_static_route():
+            return
+
         self._set_thread_identity(identity)
         for saver in self.identity_savers:
             saver(identity)
@@ -449,9 +454,16 @@ class Principal(object):
         self.set_identity(identity)
 
     def _on_before_request(self):
+        if self._is_static_route():
+            return
+
         g.identity = AnonymousIdentity()
         for loader in self.identity_loaders:
             identity = loader()
             if identity is not None:
                 self.set_identity(identity)
                 return
+
+    def _is_static_route(self):
+        return (self.skip_static and \
+                request.path.startswith(current_app.static_path))
