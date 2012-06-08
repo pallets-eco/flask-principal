@@ -177,18 +177,25 @@ Predefined Need Types
 
 .. autoclass:: flask_principal.Need
 
-.. autoattribute:: flask_principal.RoleNeed
+.. autoclass:: flask_principal.RoleNeed
 
-.. autoattribute:: flask_principal.UserNeed
+.. autoclass:: flask_principal.UserNeed
 
-.. autoattribute:: flask_principal.ItemNeed
+.. autoclass:: flask_principal.ItemNeed
 
-Relevant Signals
+
+Signals
 ----------------
 
-.. autoattribute:: flask_principal.identity_changed
+.. data:: identity_changed
 
-.. autoattribute:: flask_principal.identity_loaded
+   Signal sent when the identity for a request has been changed.
+
+.. data:: identity_loaded
+
+   Signal sent when the identity has been initialised for a request.
+
+.. _Flask documentation on signals: http://flask.pocoo.org/docs/signals/
 
 
 Indices and tables
