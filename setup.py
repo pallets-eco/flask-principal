@@ -29,9 +29,9 @@ setup(
     install_requires=[
         'Flask', 'blinker'
     ],
-    test_suite='tests.test_principal',
+    test_suite='nose.collector',
     tests_require=[
-        'pytest'
+        'pytest', 'nose'
     ],
     classifiers=[
         'Development Status :: 4 - Beta',
