@@ -29,7 +29,7 @@ signals = Namespace()
 """
 
 
-identity_changed = signals.signal('identity-changed', doc=
+identity_changed = signals.signal('identity-changed', doc=(
 """Signal sent when the identity for a request has been changed.
 
 Actual name: ``identity-changed``
@@ -46,10 +46,10 @@ For example::
         username = req.form.get('username')
         # check the credentials
         identity_changed.send(app, identity=Identity(username))
-""")
+"""))
 
 
-identity_loaded = signals.signal('identity-loaded', doc=
+identity_loaded = signals.signal('identity-loaded', doc=(
 """Signal sent when the identity has been initialised for a request.
 
 Actual name: ``identity-loaded``
@@ -73,7 +73,7 @@ For example::
             identity.provides.add(RoleNeed(role.name))
         # Save the user somewhere so we only look it up once
         identity.user = user
-""")
+"""))
 
 
 Need = namedtuple('Need', ['method', 'value'])
@@ -121,6 +121,7 @@ are.
 class PermissionDenied(RuntimeError):
     """Permission denied to the resource
     """
+
 
 class Identity(object):
     """Represent the user's identity.
@@ -221,7 +222,7 @@ class IdentityContext(object):
     def __exit__(self, *exc):
         if exc != (None, None, None):
             cls, val, tb = exc
-            raise cls, val, tb
+            raise(cls, val, tb)
         return False
 
 
@@ -454,4 +455,3 @@ class Principal(object):
             if identity is not None:
                 self.set_identity(identity)
                 return
-
