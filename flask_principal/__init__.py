@@ -376,6 +376,7 @@ class Principal(object):
     :param app: The flask application to extend
     :param use_sessions: Whether to use sessions to extract and store
                          identification.
+    :param skip_static: Whether to ignore static endpoints.
     """
     def __init__(self, app=None, use_sessions=True, skip_static=False):
         self.identity_loaders = deque()
