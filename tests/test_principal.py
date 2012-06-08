@@ -11,6 +11,7 @@ def _on_principal_init(sender, identity):
     if identity.name == 'ali':
         identity.provides.add(RoleNeed('admin'))
 
+
 class ReraiseException(Exception):
     """For checking reraising"""
 
@@ -22,6 +23,7 @@ admin_or_editor = Permission(RoleNeed('admin'), RoleNeed('editor'))
 editor_permission = Permission(RoleNeed('editor'))
 
 admin_denied = Denial(RoleNeed('admin'))
+
 
 def mkapp():
     app = Flask(__name__)
@@ -114,7 +116,7 @@ def mkapp():
     @app.route("/m")
     def m():
         with admin_denied.require():
-           pass
+            pass
 
         return Response("OK")
 
@@ -126,7 +128,6 @@ def mkapp():
             pass
 
         return Response("OK")
-
 
     @app.route("/o")
     def o():
@@ -140,29 +141,36 @@ def mkapp():
 
     return app
 
+
 def mkadmin():
     i = Identity('ali')
     return i
+
 
 def test_deny_with():
     client = mkapp().test_client()
     raises(PermissionDenied, client.open, '/')
 
+
 def test_deny_view():
     client = mkapp().test_client()
     raises(PermissionDenied, client.open, '/a')
+
 
 def test_allow_view():
     client = mkapp().test_client()
     assert client.open('/b').data == 'hello'
 
+
 def test_reraise():
     client = mkapp().test_client()
     raises(ReraiseException, client.open, '/c')
 
+
 def test_error_view():
     client = mkapp().test_client()
     raises(ReraiseException, client.open, '/d')
+
 
 def test_permission_union():
     p1 = Permission(('a', 'b'))
@@ -170,6 +178,7 @@ def test_permission_union():
     p3 = p1.union(p2)
     assert p1.issubset(p3)
     assert p2.issubset(p3)
+
 
 def test_permission_difference():
     p1 = Permission(('a', 'b'), ('a', 'c'))
@@ -187,6 +196,7 @@ def test_permission_union_denial():
     assert p1.issubset(p3)
     assert p2.issubset(p3)
 
+
 def test_permission_difference_denial():
     p1 = Denial(('a', 'b'), ('a', 'c'))
     p2 = Denial(('a', 'c'), ('d', 'e'))
@@ -195,6 +205,7 @@ def test_permission_difference_denial():
     p4 = p2.difference(p1)
     assert p4.excludes == set([('d', 'e')])
 
+
 def test_reverse_permission():
 
     p = Permission(('a', 'b'))
@@ -202,37 +213,45 @@ def test_reverse_permission():
     print d.excludes
     assert ('a', 'b') in d.excludes
 
+
 def test_identity_changed():
     client = mkapp().test_client()
     assert client.open('/e').data == 'hello'
+
 
 def test_identity_load():
     client = mkapp().test_client()
     assert client.open('/e').data == 'hello'
     assert client.open('/a').data == 'hello'
 
+
 def test_or_permissions():
     client = mkapp().test_client()
     assert client.open('/e').data == 'hello'
     assert client.open('/f').data == 'hello'
 
+
 def test_and_permissions_view_denied():
     client = mkapp().test_client()
     raises(PermissionDenied, client.open, '/g')
 
+
 def test_and_permissions_view():
     client = mkapp().test_client()
     raises(PermissionDenied, client.open, '/g')
+
 
 def test_and_permissions_view_with_http_exc():
     client = mkapp().test_client()
     response = client.open("/j")
     assert response.status_code == 403
 
+
 def test_and_permissions_view_with_http_exc_decorated():
     client = mkapp().test_client()
     response = client.open("/k")
     assert response.status_code == 403
+
 
 def test_and_permissions_view_with_custom_errhandler():
     app = mkapp()
@@ -246,6 +265,7 @@ def test_and_permissions_view_with_custom_errhandler():
     response = client.open("/k")
     assert response.status_code == 200
 
+
 def test_permission_and():
 
     p1 = Permission(RoleNeed('boss'))
@@ -255,6 +275,7 @@ def test_permission_and():
     p4 = p1.union(p2)
 
     assert p3.needs == p4.needs
+
 
 def test_permission_or():
 
@@ -266,6 +287,7 @@ def test_permission_or():
 
     assert p3.needs == p4.needs
 
+
 def test_contains():
 
     p1 = Permission(RoleNeed('boss'), RoleNeed('lackey'))
@@ -273,6 +295,7 @@ def test_contains():
 
     assert p2.issubset(p1)
     assert p2 in p1
+
 
 def test_permission_bool():
 
@@ -282,21 +305,25 @@ def test_permission_bool():
     assert 'not admin' in response.data
     assert 'now admin' in response.data
 
+
 def test_denied_passes():
 
     client = mkapp().test_client()
     response = client.open("/m")
     assert response.status_code == 200
 
+
 def test_denied_fails():
 
     client = mkapp().test_client()
     raises(PermissionDenied, client.open, '/n')
 
+
 def test_permission_test():
 
     client = mkapp().test_client()
     raises(PermissionDenied, client.open, '/o')
+
 
 def test_permission_test_with_http_exc():
 
