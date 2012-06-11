@@ -1,0 +1,19 @@
+Flask-Principal Changelog
+=========================
+
+Here you can see the full list of changes between each Flask-Principal release.
+
+Version 0.2
+-----------
+
+Initial development by Ali Asfshar. `Original repository <https://bitbucket.org/aafshar/flask-principal-main>`_
+
+Version 0.3
+-------------
+
+Released ...
+
+- Python 2.5/GAE support
+- New extension structure
+- Added ignore_static option
+- Updated docs

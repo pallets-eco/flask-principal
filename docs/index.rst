@@ -78,7 +78,7 @@ Links
 
 * `documentation <http://packages.python.org/Flask-Principal/>`_
 * `source <http://bitbucket.org/aafshar/flask-principal-main>`_
-
+* :doc:`changelog </changelog>`
 
 Protecting access to resources
 ------------------------------
@@ -196,6 +196,14 @@ Signals
    Signal sent when the identity has been initialised for a request.
 
 .. _Flask documentation on signals: http://flask.pocoo.org/docs/signals/
+
+
+Changelog
+=========
+.. toctree::
+   :maxdepth: 2
+
+   changelog
 
 
 Indices and tables
