@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-    flaskext.principal
-    ~~~~~~~~~~~~~~~~~~
+    flask_principal
+    ~~~~~~~~~~~~~~~
 
     Identity management for Flask.
 
