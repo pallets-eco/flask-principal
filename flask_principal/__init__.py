@@ -15,10 +15,11 @@ from __future__ import with_statement
 import sys
 from functools import partial, wraps
 from collections import deque
+
 try:
     from collections import namedtuple
 except ImportError:
-    from namedtuple import namedtuple
+    from .backport import namedtuple
 
 from flask import g, session, current_app, abort, request
 from flask.signals import Namespace
@@ -35,8 +36,8 @@ identity_changed = signals.signal('identity-changed', doc=(
 Actual name: ``identity-changed``
 
 Authentication providers should send this signal when authentication has been
-successfully performed. Flask-IdentityContext connects to this signal and causes the
-identity to be saved in the session.
+successfully performed. Flask-IdentityContext connects to this signal and
+causes the identity to be saved in the session.
 
 For example::
 

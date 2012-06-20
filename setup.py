@@ -23,7 +23,7 @@ setup(
     author_email='matt@nobien.net',
     description='Identity management for flask',
     long_description=__doc__,
-    py_modules=['flask_principal'],
+    packages=['flask_principal'],
     zip_safe=False,
     platforms='any',
     install_requires=[
