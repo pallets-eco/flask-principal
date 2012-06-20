@@ -9,8 +9,11 @@ Links
 
 * `documentation <http://packages.python.org/Flask-Principal/>`_
 * `source <https://github.com/mattupstate/flask-principal>`_
+* `development version
+  <https://github.com/mattupstate/flask-principal/raw/develop#egg=Flask-Principal-dev>`_
 
 """
+
 from setuptools import setup
 
 
