@@ -124,7 +124,7 @@ Flask-Principal::
     from flask.ext.login import LoginManager, login_user, logout_user, \
          login_required, current_user
     from flask.ext.wtf import Form, TextField, PasswordField, Required, Email
-    from flask.ext.principal import Principal, Identity, AnonymousIdentity \
+    from flask.ext.principal import Principal, Identity, AnonymousIdentity, \
          identity_changed
 
     app = Flask(__name__)
@@ -228,7 +228,7 @@ handler. For example::
     BlogPostNeed = namedtuple('blog_post', ['method', 'value'])
     EditBlogPostNeed = partial(BlogPostNeed, 'edit')
 
-    class EditBlogPostPermission(Permission)
+    class EditBlogPostPermission(Permission):
         def __init__(self, post_id):
             need = EditBlogPostNeed(unicode(post_id))
             super(EditBlogPostPermission, self).__init__(need)
