@@ -120,7 +120,7 @@ hypothetical example of how one might combine the popular
 Flask-Principal::
 
 
-    from flask import Flask, current_app, request
+    from flask import Flask, current_app, request, session
     from flask.ext.login import LoginManager, login_user, logout_user, \
          login_required, current_user
     from flask.ext.wtf import Form, TextField, PasswordField, Required, Email
