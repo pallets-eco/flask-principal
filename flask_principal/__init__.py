@@ -63,7 +63,7 @@ major activities:
 
 For example::
 
-    from flaskext.principal import indentity_loaded, RoleNeed, UserNeed
+    from flaskext.principal import identity_loaded, RoleNeed, UserNeed
 
     @identity_loaded.connect
     def on_identity_loaded(sender, identity):
