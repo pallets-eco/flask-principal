@@ -192,7 +192,7 @@ combined with the previous example. It shows how one might use a role based
 permission scheme::
 
     from flask.ext.login import current_user
-    from flask.ext.principal import indentity_loaded, RoleNeed, UserNeed
+    from flask.ext.principal import identity_loaded, RoleNeed, UserNeed
 
     @identity_loaded.connect_via(app)
     def on_identity_loaded(sender, identity):
@@ -222,7 +222,7 @@ handler. For example::
     from functools import partial
 
     from flask.ext.login import current_user
-    from flask.ext.principal import indentity_loaded, Permission, RoleNeed, \
+    from flask.ext.principal import identity_loaded, Permission, RoleNeed, \
          UserNeed
 
     BlogPostNeed = namedtuple('blog_post', ['method', 'value'])
