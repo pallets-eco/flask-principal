@@ -220,9 +220,8 @@ class IdentityContext(object):
                 abort(self.http_exception, self.permission)
             raise PermissionDenied(self.permission)
 
-    def __exit__(self, *exc):
-        if exc != (None, None, None):
-            cls, val, tb = exc
+    def __exit__(self, cls, val, tb):
+        if tb is not None:
             raise(cls, val, tb)
         return False
 
