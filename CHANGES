@@ -3,10 +3,13 @@ Flask-Principal Changelog
 
 Here you can see the full list of changes between each Flask-Principal release.
 
-Version 0.2
------------
+Version 0.3.1
+-------------
 
-Initial development by Ali Asfshar. `Original repository <https://bitbucket.org/aafshar/flask-principal-main>`_
+Released August 15th, 2012
+
+- Fixed bug regarding exception handling
+
 
 Version 0.3
 -------------
@@ -17,3 +20,11 @@ Released June 20th, 2012
 - New extension structure
 - Added ignore_static option
 - Updated docs
+
+
+Version 0.2
+-----------
+
+Initial development by Ali Asfshar. `Original repository <https://bitbucket.org/aafshar/flask-principal-main>`_
+
+
