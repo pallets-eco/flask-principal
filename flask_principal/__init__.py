@@ -222,7 +222,8 @@ class IdentityContext(object):
 
     def __exit__(self, *exc):
         if exc != (None, None, None):
-            raise
+            cls, val, tb = exc
+            raise(cls, val, tb)
         return False
 
 
