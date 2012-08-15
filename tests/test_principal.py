@@ -203,10 +203,8 @@ class PrincipalTests(unittest.TestCase):
         assert p4.excludes == set([('d', 'e')])
 
     def test_reverse_permission(self):
-
         p = Permission(('a', 'b'))
         d = p.reverse()
-        print d.excludes
         assert ('a', 'b') in d.excludes
 
     def test_identity_changed(self):
