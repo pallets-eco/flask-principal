@@ -12,6 +12,8 @@
 
 from __future__ import with_statement
 
+__version__ = '0.3'
+
 import sys
 from functools import partial, wraps
 from collections import deque
