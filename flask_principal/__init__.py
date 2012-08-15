@@ -12,7 +12,7 @@
 
 from __future__ import with_statement
 
-__version__ = '0.3'
+__version__ = '0.3.1'
 
 import sys
 from functools import partial, wraps
