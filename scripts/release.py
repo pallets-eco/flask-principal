@@ -20,7 +20,7 @@ _date_clean_re = re.compile(r'(\d+)(st|nd|rd|th)')
 
 
 def installed_libraries():
-    return set(Popen(['pip', 'freeze'], stdout=PIPE).communicate()[0].splitlines())
+    return Popen(['pip', 'freeze'], stdout=PIPE).communicate()[0]
 
 
 def has_library_installed(library):
@@ -161,6 +161,10 @@ def main():
 
     tags = get_git_tags()
 
+    for lib in ['Sphinx', 'Sphinx-PyPI-upload']:
+        if not has_library_installed(lib):
+            fail('Build requires that %s be installed', lib)
+
     if version in tags:
         fail('Version "%s" is already tagged', version)
     if release_date.date() != date.today():
@@ -171,10 +175,6 @@ def main():
 
     if not git_is_clean():
         fail('You have uncommitted changes in git')
-
-    for lib in ['Sphinx', 'Sphinx-PyPI-upload']:
-        if not has_library_installed(lib):
-            fail('Build requires that %s be installed', lib)
 
     info('Releasing %s (release date %s)',
          version, release_date.strftime('%d/%m/%Y'))
