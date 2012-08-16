@@ -220,7 +220,7 @@ class IdentityContext(object):
 
     def __exit__(self, cls, val, tb):
         if cls and val and tb:
-            raise
+            raise(cls, val, tb)
         return False
 
 
