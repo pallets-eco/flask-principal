@@ -205,10 +205,9 @@ class IdentityContext(object):
     def __call__(self, f):
         @wraps(f)
         def _decorated(*args, **kw):
-            self.__enter__()
-            result = f(*args, **kw)
-            self.__exit__(*sys.exc_info())
-            return result
+            with self:
+                rv = f(*args, **kw)
+            return rv
         return _decorated
 
     def __enter__(self):
