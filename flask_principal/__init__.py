@@ -205,14 +205,9 @@ class IdentityContext(object):
     def __call__(self, f):
         @wraps(f)
         def _decorated(*args, **kw):
-            self.__enter__()
-            exc = (None, None, None)
-            try:
-                result = f(*args, **kw)
-            except Exception:
-                exc = sys.exc_info()
-            self.__exit__(*exc)
-            return result
+            with self:
+                rv = f(*args, **kw)
+            return rv
         return _decorated
 
     def __enter__(self):
@@ -222,9 +217,7 @@ class IdentityContext(object):
                 abort(self.http_exception, self.permission)
             raise PermissionDenied(self.permission)
 
-    def __exit__(self, cls, val, tb):
-        if tb is not None:
-            raise(cls, val, tb)
+    def __exit__(self, *args):
         return False
 
 
