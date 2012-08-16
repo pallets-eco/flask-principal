@@ -219,7 +219,7 @@ class IdentityContext(object):
             raise PermissionDenied(self.permission)
 
     def __exit__(self, cls, val, tb):
-        if cls and tb:
+        if cls and val and tb:
             raise(cls, val, tb)
         return False
 
