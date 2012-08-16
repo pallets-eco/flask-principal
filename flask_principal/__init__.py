@@ -206,12 +206,8 @@ class IdentityContext(object):
         @wraps(f)
         def _decorated(*args, **kw):
             self.__enter__()
-            exc = (None, None, None)
-            try:
-                result = f(*args, **kw)
-            except Exception:
-                exc = sys.exc_info()
-            self.__exit__(*exc)
+            result = f(*args, **kw)
+            self.__exit__(*sys.exc_info())
             return result
         return _decorated
 
@@ -224,7 +220,7 @@ class IdentityContext(object):
 
     def __exit__(self, cls, val, tb):
         if tb is not None:
-            raise(cls, val, tb)
+            raise
         return False
 
 
