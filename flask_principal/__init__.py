@@ -380,6 +380,11 @@ class Principal(object):
         self.use_sessions = use_sessions
         self.skip_static = skip_static
 
+        if hasattr(app, 'static_url_path'):
+            self._static_path = app.static_url_path
+        else:
+            self._static_path = app.static_path
+
         if app is not None:
             self._init_app(app)
 
@@ -462,4 +467,4 @@ class Principal(object):
 
     def _is_static_route(self):
         return (self.skip_static and \
-                request.path.startswith(current_app.static_url_path))
+                request.path.startswith(self._static_path))
