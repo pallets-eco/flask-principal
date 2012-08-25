@@ -3,6 +3,14 @@ Flask-Principal Changelog
 
 Here you can see the full list of changes between each Flask-Principal release.
 
+Version 0.3.2
+-------------
+
+Released August 25 2012
+
+- Update to check for ``static_url_path`` in Flask 0.9
+
+
 Version 0.3.1
 -------------
 
