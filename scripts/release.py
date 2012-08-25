@@ -133,6 +133,7 @@ def make_git_commit(message, *args):
 def make_git_tag(tag):
     info('Tagging "%s"', tag)
     Popen(['git', 'tag', '-a', tag, '-m', '%s release' % tag]).wait()
+    Popen(['git', 'push', '--tags']).wait()
 
 
 def update_version(version):
