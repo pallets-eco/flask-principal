@@ -380,15 +380,15 @@ class Principal(object):
         self.use_sessions = use_sessions
         self.skip_static = skip_static
 
+        if app is not None:
+            self.init_app(app)
+
+    def init_app(self, app):
         if hasattr(app, 'static_url_path'):
             self._static_path = app.static_url_path
         else:
             self._static_path = app.static_path
 
-        if app is not None:
-            self._init_app(app)
-
-    def _init_app(self, app):
         app.before_request(self._on_before_request)
         identity_changed.connect(self._on_identity_changed, app)
 
