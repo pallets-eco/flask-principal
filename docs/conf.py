@@ -52,7 +52,7 @@ copyright = u'2012, Ali Afshar'
 # built documents.
 #
 # The short X.Y version.
-version = '0.3.3'
+version = '0.3.3-dev'
 # The full version, including alpha/beta/rc tags.
 release = version
 

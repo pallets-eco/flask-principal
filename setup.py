@@ -10,7 +10,7 @@ Links
 * `documentation <http://packages.python.org/Flask-Principal/>`_
 * `source <https://github.com/mattupstate/flask-principal>`_
 * `development version
-  <https://github.com/mattupstate/flask-principal/raw/develop#egg=Flask-Principal-dev>`_
+  <https://github.com/mattupstate/flask-principal/raw/master#egg=Flask-Principal-dev>`_
 
 """
 
@@ -19,7 +19,7 @@ from setuptools import setup
 
 setup(
     name='Flask-Principal',
-    version='0.3.3',
+    version='0.3.3-dev',
     url='http://packages.python.org/Flask-Principal/',
     license='MIT',
     author='Ali Afshar',
