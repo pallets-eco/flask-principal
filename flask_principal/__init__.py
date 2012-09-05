@@ -383,6 +383,12 @@ class Principal(object):
         if app is not None:
             self.init_app(app)
 
+    def _init_app(self, app):
+        from warnings import warn
+        warn(DeprecationWarning('_init_app is deprecated, use the '
+            'new init_app method instead.'), stacklevel=1)
+        self.init_app(app)
+
     def init_app(self, app):
         if hasattr(app, 'static_url_path'):
             self._static_path = app.static_url_path
