@@ -183,7 +183,6 @@ def main():
     make_git_commit('Bump version number to %s', version)
     make_git_tag(version)
     build_and_upload()
-    update_version(version + '-dev')
 
 
 if __name__ == '__main__':
