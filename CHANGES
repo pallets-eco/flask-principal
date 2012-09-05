@@ -6,7 +6,7 @@ Here you can see the full list of changes between each Flask-Principal release.
 Version 0.3.3
 -------------
 
-Released September 4 2012
+Released September 4th 2012
 
 - Add ``init_app`` method to accomodate usage with a factory pattern.
 
@@ -14,7 +14,7 @@ Released September 4 2012
 Version 0.3.2
 -------------
 
-Released August 25 2012
+Released August 25th 2012
 
 - Update to check for ``static_url_path`` in Flask 0.9
 
