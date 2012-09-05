@@ -3,6 +3,14 @@ Flask-Principal Changelog
 
 Here you can see the full list of changes between each Flask-Principal release.
 
+Version 0.3.3
+-------------
+
+Released September 4 2012
+
+- Add ``init_app`` method to accomodate usage with a factory pattern.
+
+
 Version 0.3.2
 -------------
 
