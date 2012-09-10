@@ -98,21 +98,21 @@ RoleNeed.__doc__ = """A need with the method preset to `"role"`."""
 
 
 TypeNeed = partial(Need, 'type')
-TypeNeed.__doc__ = """A need with the method preset to `"role"`."""
+TypeNeed.__doc__ = """A need with the method preset to `"type"`."""
 
 
 ActionNeed = partial(Need, 'action')
 TypeNeed.__doc__ = """A need with the method preset to `"action"`."""
 
 
-ItemNeed = namedtuple('RowNeed', ['method', 'value', 'type'])
+ItemNeed = namedtuple('ItemNeed', ['method', 'value', 'type'])
 """A required item need
 
 An item need is just a named tuple, and practically any tuple will do. In
 addition to other Needs, there is a type, for example this could be specified
 as::
 
-    RowNeed('update', 27, 'posts')
+    ItemNeed('update', 27, 'posts')
     ('update', 27, 'posts') # or like this
 
 And that might describe the permission to update a particular blog post. In

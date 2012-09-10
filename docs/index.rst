@@ -45,10 +45,10 @@ The major components are the Identity, Needs, Permission, and the IdentityContex
        Whilst a Need is a permission to access a resource, an Identity should
        provide a set of Needs that it has access to.
 
-    2. A Permission is a set of requirements, any of which should be
+    3. A Permission is a set of requirements, any of which should be
        present for access to a resource.
        
-    3. An IdentityContext is the context of a certain identity against a certain
+    4. An IdentityContext is the context of a certain identity against a certain
        Permission. It can be used as a context manager, or a decorator.
 
 
@@ -88,7 +88,7 @@ restriction is easy to define as both a decorator and a context manager. A
 simple quickstart example is presented with commenting::
 
     from flask import Flask, Response
-    from flask_principal import Principal, Permission, RoleNeed
+    from flask.ext.principal import Principal, Permission, RoleNeed
 
     app = Flask(__name__)
 
