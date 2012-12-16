@@ -14,7 +14,6 @@ from __future__ import with_statement
 
 __version__ = '0.3.4-dev'
 
-import sys
 from functools import partial, wraps
 from collections import deque
 
@@ -163,6 +162,11 @@ class Identity(object):
         """
         return permission.allows(self)
 
+    def __repr__(self):
+        return '<{0} name="{1}" auth_type="{2}" provides={3}>'.format(
+            self.__class__.__name__, self.name, self.auth_type, self.provides
+        )
+
 
 class AnonymousIdentity(Identity):
     """An anonymous identity
@@ -254,6 +258,11 @@ class Permission(object):
         """
         return other.issubset(self)
 
+    def __repr__(self):
+        return '<Permission needs={0} excludes={1}>'.format(
+            self.__class__.__name__, self.needs, self.excludes
+        )
+
     def require(self, http_exception=None):
         """Create a principal for this permission.
 
@@ -317,8 +326,10 @@ class Permission(object):
 
         :param other: The other permission
         """
-        return self.needs.issubset(other.needs) and \
-               self.excludes.issubset(other.excludes)
+        return (
+            self.needs.issubset(other.needs) and
+            self.excludes.issubset(other.excludes)
+        )
 
     def allows(self, identity):
         """Whether the identity can access this permission.
@@ -385,8 +396,10 @@ class Principal(object):
 
     def _init_app(self, app):
         from warnings import warn
-        warn(DeprecationWarning('_init_app is deprecated, use the '
-            'new init_app method instead.'), stacklevel=1)
+        warn(DeprecationWarning(
+            '_init_app is deprecated, use the new init_app '
+            'method instead.'), stacklevel=1
+        )
         self.init_app(app)
 
     def init_app(self, app):
@@ -472,5 +485,7 @@ class Principal(object):
                 return
 
     def _is_static_route(self):
-        return (self.skip_static and \
-                request.path.startswith(self._static_path))
+        return (
+            self.skip_static and
+            request.path.startswith(self._static_path)
+        )
