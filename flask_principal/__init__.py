@@ -259,7 +259,7 @@ class Permission(object):
         return other.issubset(self)
 
     def __repr__(self):
-        return '<Permission needs={0} excludes={1}>'.format(
+        return '<{0} needs={1} excludes={2}>'.format(
             self.__class__.__name__, self.needs, self.excludes
         )
 
