@@ -6,7 +6,7 @@ Here you can see the full list of changes between each Flask-Principal release.
 Version 0.3.4
 -------------
 
-Released February 1st 2012
+Released February 1st 2013
 
 - Add ``__repr__`` method to Identity and Permission classes
 - Optimized ``_is_static_resource`` method
