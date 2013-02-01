@@ -37,7 +37,7 @@ identity_changed = signals.signal('identity-changed', doc=(
 Actual name: ``identity-changed``
 
 Authentication providers should send this signal when authentication has been
-successfully performed. Flask-IdentityContext connects to this signal and
+successfully performed. Flask-Principal connects to this signal and
 causes the identity to be saved in the session.
 
 For example::
