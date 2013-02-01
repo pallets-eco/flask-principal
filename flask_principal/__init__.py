@@ -420,8 +420,6 @@ class Principal(object):
 
         :param identity: The identity to set
         """
-        if self._is_static_route():
-            return
 
         self._set_thread_identity(identity)
         for saver in self.identity_savers:
@@ -471,6 +469,9 @@ class Principal(object):
                              identity=identity)
 
     def _on_identity_changed(self, app, identity):
+        if self._is_static_route():
+            return
+
         self.set_identity(identity)
 
     def _on_before_request(self):
