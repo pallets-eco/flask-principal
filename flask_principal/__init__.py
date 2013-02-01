@@ -12,7 +12,7 @@
 
 from __future__ import with_statement
 
-__version__ = '0.3.4-dev'
+__version__ = '0.3.4'
 
 from functools import partial, wraps
 from collections import deque

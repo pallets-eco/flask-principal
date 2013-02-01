@@ -19,7 +19,7 @@ from setuptools import setup
 
 setup(
     name='Flask-Principal',
-    version='0.3.4-dev',
+    version='0.3.4',
     url='http://packages.python.org/Flask-Principal/',
     license='MIT',
     author='Ali Afshar',
