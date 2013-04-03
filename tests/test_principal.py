@@ -10,6 +10,12 @@ from flask import Flask, Response
 from flask_principal import Principal, Permission, Denial, RoleNeed, \
     PermissionDenied, identity_changed, Identity, identity_loaded
 
+anon_permission = Permission()
+admin_permission = Permission(RoleNeed('admin'))
+admin_or_editor = Permission(RoleNeed('admin'), RoleNeed('editor'))
+editor_permission = Permission(RoleNeed('editor'))
+admin_denied = Denial(RoleNeed('admin'))
+
 
 def _on_principal_init(sender, identity):
     if identity.id == 'ali':
@@ -18,15 +24,6 @@ def _on_principal_init(sender, identity):
 
 class ReraiseException(Exception):
     """For checking reraising"""
-
-admin_permission = Permission(RoleNeed('admin'))
-anon_permission = Permission()
-
-admin_or_editor = Permission(RoleNeed('admin'), RoleNeed('editor'))
-
-editor_permission = Permission(RoleNeed('editor'))
-
-admin_denied = Denial(RoleNeed('admin'))
 
 
 def mkapp(with_factory=False):

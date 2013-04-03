@@ -141,15 +141,7 @@ class Identity(object):
     def __init__(self, id, auth_type=None):
         self.id = id
         self.auth_type = auth_type
-
         self.provides = set()
-        """A set of needs provided by this user
-
-        Provisions can be added using the `add` method, for example::
-
-            identity = Identity('ali')
-            identity.provides.add(('role', 'admin'))
-        """
 
     def can(self, permission):
         """Whether the identity has access to the permission.
