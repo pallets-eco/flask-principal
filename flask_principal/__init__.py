@@ -25,14 +25,11 @@ except ImportError:
 from flask import g, session, current_app, abort, request
 from flask.signals import Namespace
 
-
 signals = Namespace()
-"""Namespace for principal's signals.
-"""
 
 
-identity_changed = signals.signal('identity-changed', doc=(
-"""Signal sent when the identity for a request has been changed.
+identity_changed = signals.signal('identity-changed', doc="""
+Signal sent when the identity for a request has been changed.
 
 Actual name: ``identity-changed``
 
@@ -48,11 +45,11 @@ For example::
         username = req.form.get('username')
         # check the credentials
         identity_changed.send(app, identity=Identity(username))
-"""))
+""")
 
 
-identity_loaded = signals.signal('identity-loaded', doc=(
-"""Signal sent when the identity has been initialised for a request.
+identity_loaded = signals.signal('identity-loaded', doc="""
+Signal sent when the identity has been initialised for a request.
 
 Actual name: ``identity-loaded``
 
@@ -75,7 +72,7 @@ For example::
             identity.provides.add(RoleNeed(role.name))
         # Save the user somewhere so we only look it up once
         identity.user = user
-"""))
+""")
 
 
 Need = namedtuple('Need', ['method', 'value'])
@@ -88,8 +85,8 @@ attribute can be used to look up element 1.
 """
 
 
-UserNeed = partial(Need, 'name')
-UserNeed.__doc__ = """A need with the method preset to `"name"`."""
+UserNeed = partial(Need, 'id')
+UserNeed.__doc__ = """A need with the method preset to `"id"`."""
 
 
 RoleNeed = partial(Need, 'role')
@@ -121,14 +118,13 @@ are.
 
 
 class PermissionDenied(RuntimeError):
-    """Permission denied to the resource
-    """
+    """Permission denied to the resource"""
 
 
 class Identity(object):
     """Represent the user's identity.
 
-    :param name: The username
+    :param id: The user id
     :param auth_type: The authentication type used to confirm the user's
                       identity.
 
@@ -142,8 +138,8 @@ class Identity(object):
     Needs that are provided by this identity should be added to the `provides`
     set after loading.
     """
-    def __init__(self, name, auth_type=''):
-        self.name = name
+    def __init__(self, id, auth_type=None):
+        self.id = id
         self.auth_type = auth_type
 
         self.provides = set()
@@ -163,19 +159,16 @@ class Identity(object):
         return permission.allows(self)
 
     def __repr__(self):
-        return '<{0} name="{1}" auth_type="{2}" provides={3}>'.format(
-            self.__class__.__name__, self.name, self.auth_type, self.provides
+        return '<{0} id="{1}" auth_type="{2}" provides={3}>'.format(
+            self.__class__.__name__, self.id, self.auth_type, self.provides
         )
 
 
 class AnonymousIdentity(Identity):
-    """An anonymous identity
-
-    :attr name: `"anon"`
-    """
+    """An anonymous identity"""
 
     def __init__(self):
-        Identity.__init__(self, 'anon')
+        Identity.__init__(self, None)
 
 
 class IdentityContext(object):
@@ -364,14 +357,14 @@ class Denial(Permission):
 
 
 def session_identity_loader():
-    if 'identity.name' in session and 'identity.auth_type' in session:
-        identity = Identity(session['identity.name'],
+    if 'identity.id' in session and 'identity.auth_type' in session:
+        identity = Identity(session['identity.id'],
                             session['identity.auth_type'])
         return identity
 
 
 def session_identity_saver(identity):
-    session['identity.name'] = identity.name
+    session['identity.id'] = identity.id
     session['identity.auth_type'] = identity.auth_type
     session.modified = True
 

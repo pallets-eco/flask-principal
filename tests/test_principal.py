@@ -12,7 +12,7 @@ from flask_principal import Principal, Permission, Denial, RoleNeed, \
 
 
 def _on_principal_init(sender, identity):
-    if identity.name == 'ali':
+    if identity.id == 'ali':
         identity.provides.add(RoleNeed('admin'))
 
 
