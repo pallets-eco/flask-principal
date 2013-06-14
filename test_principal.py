@@ -3,8 +3,6 @@ from __future__ import with_statement
 
 import unittest
 
-from py.test import raises
-
 from flask import Flask, Response
 
 from flask_principal import Principal, Permission, Denial, RoleNeed, \
@@ -151,29 +149,8 @@ def mkadmin():
     i = Identity('ali')
     return i
 
-class PrincipalTests(unittest.TestCase):
 
-    def setUp(self):
-        self.client = mkapp().test_client()
-
-    def test_deny_with(self):
-        raises(PermissionDenied, self.client.open, '/')
-
-    def test_deny_view(self):
-
-        raises(PermissionDenied, self.client.open, '/a')
-
-    def test_allow_view(self):
-
-        assert self.client.open('/b').data == 'hello'
-
-    def test_reraise(self):
-
-        raises(ReraiseException, self.client.open, '/c')
-
-    def test_error_view(self):
-
-        raises(ReraiseException, self.client.open, '/d')
+class PrincipalUnitTests(unittest.TestCase):
 
     def test_permission_union(self):
         p1 = Permission(('a', 'b'))
@@ -210,50 +187,6 @@ class PrincipalTests(unittest.TestCase):
         d = p.reverse()
         assert ('a', 'b') in d.excludes
 
-    def test_identity_changed(self):
-
-        assert self.client.open('/e').data == 'hello'
-
-    def test_identity_load(self):
-
-        assert self.client.open('/e').data == 'hello'
-        assert self.client.open('/a').data == 'hello'
-
-    def test_or_permissions(self):
-
-        assert self.client.open('/e').data == 'hello'
-        assert self.client.open('/f').data == 'hello'
-
-    def test_and_permissions_view_denied(self):
-
-        raises(PermissionDenied, self.client.open, '/g')
-
-    def test_and_permissions_view(self):
-
-        raises(PermissionDenied, self.client.open, '/g')
-
-    def test_and_permissions_view_with_http_exc(self):
-
-        response = self.client.open("/j")
-        assert response.status_code == 403
-
-    def test_and_permissions_view_with_http_exc_decorated(self):
-
-        response = self.client.open("/k")
-        assert response.status_code == 403
-
-    def test_and_permissions_view_with_custom_errhandler(self):
-        app = mkapp()
-
-        @app.errorhandler(403)
-        def handle_permission_denied(error):
-            assert error.description == admin_permission
-            return Response("OK")
-
-        self.client = app.test_client()
-        response = self.client.open("/k")
-        assert response.status_code == 200
-
     def test_permission_and(self):
         p1 = Permission(RoleNeed('boss'))
         p2 = Permission(RoleNeed('lackey'))
@@ -279,32 +212,85 @@ class PrincipalTests(unittest.TestCase):
         assert p2.issubset(p1)
         assert p2 in p1
 
-    def test_permission_bool(self):
 
+class PrincipalApplicationTests(unittest.TestCase):
+
+    def setUp(self):
+        self.client = mkapp().test_client()
+
+    def test_deny_with(self):
+        self.assertRaises(PermissionDenied, self.client.open, '/')
+
+    def test_deny_view(self):
+        self.assertRaises(PermissionDenied, self.client.open, '/a')
+
+    def test_allow_view(self):
+        assert self.client.open('/b').data == b'hello'
+
+    def test_reraise(self):
+        self.assertRaises(ReraiseException, self.client.open, '/c')
+
+    def test_error_view(self):
+        self.assertRaises(ReraiseException, self.client.open, '/d')
+
+    def test_identity_changed(self):
+        assert self.client.open('/e').data == b'hello'
+
+    def test_identity_load(self):
+        assert self.client.open('/e').data == b'hello'
+        assert self.client.open('/a').data == b'hello'
+
+    def test_or_permissions(self):
+        assert self.client.open('/e').data == b'hello'
+        assert self.client.open('/f').data == b'hello'
+
+    def test_and_permissions_view_denied(self):
+        self.assertRaises(PermissionDenied, self.client.open, '/g')
+
+    def test_and_permissions_view(self):
+        self.assertRaises(PermissionDenied, self.client.open, '/g')
+
+    def test_and_permissions_view_with_http_exc(self):
+        response = self.client.open("/j")
+        assert response.status_code == 403
+
+    def test_and_permissions_view_with_http_exc_decorated(self):
+        response = self.client.open("/k")
+        assert response.status_code == 403
+
+    def test_and_permissions_view_with_custom_errhandler(self):
+        app = mkapp()
+
+        @app.errorhandler(403)
+        def handle_permission_denied(error):
+            assert error.description == admin_permission
+            return Response("OK")
+
+        self.client = app.test_client()
+        response = self.client.open("/k")
+        assert response.status_code == 200
+
+    def test_permission_bool(self):
         response = self.client.open('/l')
         assert response.status_code == 200
-        assert 'not admin' in response.data
-        assert 'now admin' in response.data
+        assert b'not admin' in response.data
+        assert b'now admin' in response.data
 
     def test_denied_passes(self):
-
         response = self.client.open("/m")
         assert response.status_code == 200
 
     def test_denied_fails(self):
-
-        raises(PermissionDenied, self.client.open, '/n')
+        self.assertRaises(PermissionDenied, self.client.open, '/n')
 
     def test_permission_test(self):
-
-        raises(PermissionDenied, self.client.open, '/o')
+        self.assertRaises(PermissionDenied, self.client.open, '/o')
 
     def test_permission_test_with_http_exc(self):
-
         response = self.client.open("/p")
         assert response.status_code == 404
 
 
-class FactorMethodPrincipalTests(PrincipalTests):
+class FactoryMethodPrincipalApplicationTests(PrincipalApplicationTests):
     def setUp(self):
         self.client = mkapp(with_factory=True).test_client()

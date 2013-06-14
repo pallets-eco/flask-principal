@@ -3,6 +3,14 @@ Flask-Principal Changelog
 
 Here you can see the full list of changes between each Flask-Principal release.
 
+Version 0.4.0
+-------------
+
+Not released yet
+
+- Added Python 3 support
+- Dropped support for Python 2.5
+
 Version 0.3.5
 -------------
 

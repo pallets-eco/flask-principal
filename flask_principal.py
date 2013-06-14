@@ -14,16 +14,17 @@ from __future__ import with_statement
 
 __version__ = '0.3.5'
 
+import sys
+
 from functools import partial, wraps
 from collections import deque
 
-try:
-    from collections import namedtuple
-except ImportError:
-    from .backport import namedtuple
+from collections import namedtuple
 
 from flask import g, session, current_app, abort, request
 from flask.signals import Namespace
+
+PY3 = sys.version_info[0] == 3
 
 signals = Namespace()
 
@@ -223,10 +224,18 @@ class Permission(object):
         self.needs = set(needs)
         self.excludes = set()
 
+    def _bool(self):
+        return bool(self.can())
+
     def __nonzero__(self):
         """Equivalent to ``self.can()``.
         """
-        return bool(self.can())
+        return self._bool()
+
+    def __bool__(self):
+        """Equivalent to ``self.can()``.
+        """
+        return self._bool()
 
     def __and__(self, other):
         """Does the same thing as ``self.union(other)``
