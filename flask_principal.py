@@ -482,5 +482,5 @@ class Principal(object):
     def _is_static_route(self):
         return (
             self.skip_static and
-            request.path.startswith(self._static_path)
+            (self._static_path and request.path.startswith(self._static_path))
         )
