@@ -108,12 +108,16 @@ def mkapp(with_factory=False):
     def l():
         s = []
         if not admin_or_editor:
-            s.append("not admin")
+            s.append("not admin_or_editor")
+        if not (admin_permission or editor_permission):
+            s.append("not (admin or editor)")
 
         i = Identity('ali')
         identity_changed.send(app, identity=i)
         if admin_or_editor:
-            s.append("now admin")
+            s.append("now admin_or_editor")
+        if admin_permission or editor_permission:
+            s.append("now admin or editor")
         return Response('\n'.join(s))
 
     @app.route("/m")
@@ -135,6 +139,11 @@ def mkapp(with_factory=False):
     @app.route("/o")
     def o():
         admin_or_editor.test()
+        return Response("OK")
+
+    @app.route("/o2")
+    def o2():
+        (admin_permission | editor_permission).test()
         return Response("OK")
 
     @app.route("/p")
@@ -317,8 +326,10 @@ class PrincipalApplicationTests(unittest.TestCase):
     def test_permission_bool(self):
         response = self.client.open('/l')
         assert response.status_code == 200
-        assert b'not admin' in response.data
-        assert b'now admin' in response.data
+        assert b'not admin_or_editor' in response.data
+        assert b'not (admin or editor)' in response.data
+        assert b'now admin_or_editor' in response.data
+        assert b'now admin or editor' in response.data
 
     def test_denied_passes(self):
         response = self.client.open("/m")
@@ -329,6 +340,7 @@ class PrincipalApplicationTests(unittest.TestCase):
 
     def test_permission_test(self):
         self.assertRaises(PermissionDenied, self.client.open, '/o')
+        self.assertRaises(PermissionDenied, self.client.open, '/o2')
 
     def test_permission_test_with_http_exc(self):
         response = self.client.open("/p")
