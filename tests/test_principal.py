@@ -353,7 +353,7 @@ class PrincipalApplicationTests(unittest.TestCase):
 
         response = self.client.open('/o3')
         assert response.status_code == 200
-        assert response.data == 'OK'
+        assert response.data == b'OK'
 
     def test_permission_test_with_http_exc(self):
         response = self.client.open("/p")
