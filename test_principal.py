@@ -146,6 +146,13 @@ def mkapp(with_factory=False):
         (admin_permission | editor_permission).test()
         return Response("OK")
 
+    @app.route("/o3")
+    def o3():
+        i = mkadmin()
+        identity_changed.send(app, identity=i)
+        (admin_permission | editor_permission).test()
+        return Response("OK")
+
     @app.route("/p")
     def p():
         admin_or_editor.test(404)
@@ -334,7 +341,13 @@ class PrincipalApplicationTests(unittest.TestCase):
 
     def test_permission_test(self):
         self.assertRaises(PermissionDenied, self.client.open, '/o')
+
+    def test_permission_operator_test(self):
         self.assertRaises(PermissionDenied, self.client.open, '/o2')
+
+        response = self.client.open('/o3')
+        assert response.status_code == 200
+        assert response.data == 'OK'
 
     def test_permission_test_with_http_exc(self):
         response = self.client.open("/p")
