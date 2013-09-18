@@ -200,6 +200,19 @@ class PrincipalUnitTests(unittest.TestCase):
         assert p3.needs == p4.needs
         assert p3.needs == p3needs
 
+    def test_permission_difference_excludes(self):
+        p1 = Permission(RoleNeed('boss')).reverse()
+        p2 = Permission(RoleNeed('lackey')).reverse()
+
+        p3 = p1 - p2
+        p4 = p1.difference(p2)
+
+        # parity with set operations
+        p3excludes = p1.excludes - p2.excludes
+
+        assert p3.excludes == p4.excludes
+        assert p3.excludes == p3excludes
+
     def test_permission_or(self):
         p1 = Permission(RoleNeed('boss'), RoleNeed('lackey'))
         p2 = Permission(RoleNeed('lackey'), RoleNeed('underling'))
@@ -214,6 +227,21 @@ class PrincipalUnitTests(unittest.TestCase):
 
         assert p3.needs == p4.needs
         assert p3.needs == p3needs
+
+    def test_permission_or_excludes(self):
+        p1 = Permission(RoleNeed('boss'), RoleNeed('lackey')).reverse()
+        p2 = Permission(RoleNeed('lackey'), RoleNeed('underling')).reverse()
+
+        p3 = p1 | p2
+        p4 = p1.union(p2)
+
+        # Ensure that an `or` between sets also result in the expected
+        # behavior.  As expected, as "any of which must be present to 
+        # access a resource".
+        p3excludes = p1.excludes | p2.excludes
+
+        assert p3.excludes == p4.excludes
+        assert p3.excludes == p3excludes
 
     def test_contains(self):
         p1 = Permission(RoleNeed('boss'), RoleNeed('lackey'))
