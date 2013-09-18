@@ -237,12 +237,12 @@ class Permission(object):
         """
         return self._bool()
 
-    def __and__(self, other):
+    def __or__(self, other):
         """Does the same thing as ``self.union(other)``
         """
         return self.union(other)
 
-    def __or__(self, other):
+    def __sub__(self, other):
         """Does the same thing as ``self.difference(other)``
         """
         return self.difference(other)
