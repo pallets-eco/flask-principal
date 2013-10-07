@@ -214,6 +214,8 @@ class IdentityContext(object):
 class BasePermission(object):
     """The Base Permission."""
 
+    http_exception = None
+
     def _bool(self):
         return bool(self.can())
 
@@ -239,6 +241,10 @@ class BasePermission(object):
 
         :param http_exception: the HTTP exception code (403, 401 etc)
         """
+
+        if http_exception is None:
+            http_exception = self.http_exception
+
         return IdentityContext(self, http_exception)
 
     def test(self, http_exception=None):
