@@ -260,14 +260,13 @@ def mkapp(with_factory=False):
 
     @app.route('/mixed_ops_fail')
     def mixed_ops_fail():
-        result = []
         mixed_perms = (admin_permission | manager_permission |
             (reviewer_role_permission & editor_role_permission))
 
         i = Identity('editor')
         identity_changed.send(app, identity=i)
         with mixed_perms.require():
-            result.append('fail')
+            return Response('fail')
 
     @app.route('/mixed_ops1')
     def mixed_ops1():
