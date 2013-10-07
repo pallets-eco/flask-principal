@@ -211,18 +211,8 @@ class IdentityContext(object):
         return False
 
 
-class Permission(object):
-    """Represents needs, any of which must be present to access a resource
-
-    :param needs: The needs for this permission
-    """
-    def __init__(self, *needs):
-        """A set of needs, any of which must be present in an identity to have
-        access.
-        """
-
-        self.needs = set(needs)
-        self.excludes = set()
+class BasePermission(object):
+    """The Base Permission."""
 
     def _bool(self):
         return bool(self.can())
@@ -236,26 +226,6 @@ class Permission(object):
         """Equivalent to ``self.can()``.
         """
         return self._bool()
-
-    def __or__(self, other):
-        """Does the same thing as ``self.union(other)``
-        """
-        return self.union(other)
-
-    def __sub__(self, other):
-        """Does the same thing as ``self.difference(other)``
-        """
-        return self.difference(other)
-
-    def __contains__(self, other):
-        """Does the same thing as ``other.issubset(self)``.
-        """
-        return other.issubset(self)
-
-    def __repr__(self):
-        return '<{0} needs={1} excludes={2}>'.format(
-            self.__class__.__name__, self.needs, self.excludes
-        )
 
     def require(self, http_exception=None):
         """Create a principal for this permission.
@@ -285,6 +255,56 @@ class Permission(object):
 
         with self.require(http_exception):
             pass
+
+    def allows(self, identity):
+        """Whether the identity can access this permission.
+
+        :param identity: The identity
+        """
+
+        raise NotImplementedError
+
+    def can(self):
+        """Whether the required context for this permission has access
+
+        This creates an identity context and tests whether it can access this
+        permission
+        """
+        return self.require().can()
+
+
+class Permission(BasePermission):
+    """Represents needs, any of which must be present to access a resource
+
+    :param needs: The needs for this permission
+    """
+    def __init__(self, *needs):
+        """A set of needs, any of which must be present in an identity to have
+        access.
+        """
+
+        self.needs = set(needs)
+        self.excludes = set()
+
+    def __or__(self, other):
+        """Does the same thing as ``self.union(other)``
+        """
+        return self.union(other)
+
+    def __sub__(self, other):
+        """Does the same thing as ``self.difference(other)``
+        """
+        return self.difference(other)
+
+    def __contains__(self, other):
+        """Does the same thing as ``other.issubset(self)``.
+        """
+        return other.issubset(self)
+
+    def __repr__(self):
+        return '<{0} needs={1} excludes={2}>'.format(
+            self.__class__.__name__, self.needs, self.excludes
+        )
 
     def reverse(self):
         """
@@ -337,14 +357,6 @@ class Permission(object):
             return False
 
         return True
-
-    def can(self):
-        """Whether the required context for this permission has access
-
-        This creates an identity context and tests whether it can access this
-        permission
-        """
-        return self.require().can()
 
 
 class Denial(Permission):
