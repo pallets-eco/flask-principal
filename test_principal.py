@@ -16,8 +16,17 @@ admin_denied = Denial(RoleNeed('admin'))
 
 
 def _on_principal_init(sender, identity):
-    if identity.id == 'ali':
-        identity.provides.add(RoleNeed('admin'))
+    role_map = {
+        'ali': (RoleNeed('admin'),),
+        'admin': (RoleNeed('admin'),),
+        'editor': (RoleNeed('editor'),),
+        'admin_editor': (RoleNeed('editor'), RoleNeed('admin')),
+    }
+
+    roles = role_map.get(identity.id)
+    if roles:
+        for role in roles:
+            identity.provides.add(role)
 
 
 class ReraiseException(Exception):
