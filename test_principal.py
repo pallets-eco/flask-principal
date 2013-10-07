@@ -13,6 +13,8 @@ anon_permission = Permission()
 admin_permission = Permission(RoleNeed('admin'))
 admin_or_editor = Permission(RoleNeed('admin'), RoleNeed('editor'))
 editor_permission = Permission(RoleNeed('editor'))
+manager_permission = Permission(RoleNeed('manager'))
+
 admin_denied = Denial(RoleNeed('admin'))
 
 
@@ -24,6 +26,8 @@ class RolenamePermission(BasePermission):
 
 admin_role_permission = RolenamePermission('admin')
 editor_role_permission = RolenamePermission('editor')
+manager_role_permission = RolenamePermission('manager')
+reviewer_role_permission = RolenamePermission('reviewer')
 
 
 def _on_principal_init(sender, identity):
@@ -31,7 +35,11 @@ def _on_principal_init(sender, identity):
         'ali': (RoleNeed('admin'),),
         'admin': (RoleNeed('admin'),),
         'editor': (RoleNeed('editor'),),
+        'reviewer': (RoleNeed('reviewer'),),
         'admin_editor': (RoleNeed('editor'), RoleNeed('admin')),
+        'manager': (RoleNeed('manager'),),
+        'manager_editor': (RoleNeed('editor'), RoleNeed('manager')),
+        'reviewer_editor': (RoleNeed('editor'), RoleNeed('reviewer')),
     }
 
     roles = role_map.get(identity.id)
@@ -168,6 +176,58 @@ def mkapp(with_factory=False):
         i = Identity('editor')
         identity_changed.send(app, identity=i)
         with admin_or_editor_mixed.require():
+            result.append('good')
+
+        return Response(''.join(result))
+
+    @app.route('/mixed_ops_fail')
+    def mixed_ops_fail():
+        result = []
+        mixed_perms = (admin_permission | manager_permission |
+            (reviewer_role_permission & editor_role_permission))
+
+        i = Identity('editor')
+        identity_changed.send(app, identity=i)
+        with mixed_perms.require():
+            result.append('fail')
+
+    @app.route('/mixed_ops1')
+    def mixed_ops1():
+        result = []
+        mixed_perms = (admin_permission | manager_permission |
+            (reviewer_role_permission & editor_role_permission))
+
+        i = Identity('reviewer_editor')
+        identity_changed.send(app, identity=i)
+        with mixed_perms.require():
+            result.append('good')
+
+        i = Identity('manager')
+        identity_changed.send(app, identity=i)
+        with mixed_perms.require():
+            result.append('good')
+
+        i = Identity('admin')
+        identity_changed.send(app, identity=i)
+        with mixed_perms.require():
+            result.append('good')
+
+        return Response(''.join(result))
+
+    @app.route('/mixed_ops2')
+    def mixed_ops2():
+        result = []
+        mixed_perms = ((admin_permission & editor_permission) |
+            (manager_role_permission & editor_role_permission))
+
+        i = Identity('manager_editor')
+        identity_changed.send(app, identity=i)
+        with mixed_perms.require():
+            result.append('good')
+
+        i = Identity('admin_editor')
+        identity_changed.send(app, identity=i)
+        with mixed_perms.require():
             result.append('good')
 
         return Response(''.join(result))
@@ -424,6 +484,14 @@ class PrincipalApplicationTests(unittest.TestCase):
     def test_mixed_and_permissions(self):
         self.assertRaises(PermissionDenied, self.client.open, '/and_mixed1')
         self.assertEqual(self.client.open('/and_mixed2').data, b'good')
+
+    def test_mixed_and_or_permissions_fail(self):
+        self.assertRaises(PermissionDenied,
+            self.client.open, '/mixed_ops_fail')
+
+    def test_mixed_and_or_permissions(self):
+        self.assertEqual(self.client.open('/mixed_ops1').data, b'goodgoodgood')
+        self.assertEqual(self.client.open('/mixed_ops2').data, b'goodgood')
 
     def test_and_permissions_view_denied(self):
         self.assertRaises(PermissionDenied, self.client.open, '/g')
