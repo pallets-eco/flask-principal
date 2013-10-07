@@ -229,6 +229,11 @@ class BasePermission(object):
         """
         return self._bool()
 
+    def __or__(self, other):
+        """See ``OrPermission``.
+        """
+        return OrPermission(self, other)
+
     def require(self, http_exception=None):
         """Create a principal for this permission.
 
@@ -279,6 +284,29 @@ class BasePermission(object):
         return self.require().can()
 
 
+class _NaryOperatorPermission(BasePermission):
+
+    def __init__(self, *permissions):
+        self.permissions = set(permissions)
+
+
+class OrPermission(_NaryOperatorPermission):
+    """Result of bitwise ``or`` of BasePermission"""
+
+    def allows(self, identity):
+        """
+        Checks for any of the nested permission instances that allow the
+        identity and return True, else return False.
+
+        :param identity: The identity.
+        """
+
+        for p in self.permissions:
+            if p.allows(identity):
+                return True
+        return False
+
+
 class Permission(BasePermission):
     """Represents needs, any of which must be present to access a resource
 
@@ -295,7 +323,9 @@ class Permission(BasePermission):
     def __or__(self, other):
         """Does the same thing as ``self.union(other)``
         """
-        return self.union(other)
+        if isinstance(other, Permission):
+            return self.union(other)
+        return super(Permission, self).__or__(other)
 
     def __sub__(self, other):
         """Does the same thing as ``self.difference(other)``
