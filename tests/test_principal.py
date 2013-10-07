@@ -5,6 +5,7 @@ import unittest
 
 from flask import Flask, Response
 
+from flask_principal import BasePermission, OrPermission
 from flask_principal import Principal, Permission, Denial, RoleNeed, \
     PermissionDenied, identity_changed, Identity, identity_loaded
 
@@ -13,6 +14,16 @@ admin_permission = Permission(RoleNeed('admin'))
 admin_or_editor = Permission(RoleNeed('admin'), RoleNeed('editor'))
 editor_permission = Permission(RoleNeed('editor'))
 admin_denied = Denial(RoleNeed('admin'))
+
+
+class RolenamePermission(BasePermission):
+    def __init__(self, role):
+        self.role = role
+    def allows(self, identity):
+        return RoleNeed(self.role) in identity.provides
+
+admin_role_permission = RolenamePermission('admin')
+editor_role_permission = RolenamePermission('editor')
 
 
 def _on_principal_init(sender, identity):
@@ -85,6 +96,48 @@ def mkapp(with_factory=False):
         identity_changed.send(app, identity=i)
         with admin_or_editor.require():
             return Response('hello')
+
+    @app.route('/or_base')
+    def or_base():
+        i = mkadmin()
+        admin_or_editor_rp = (admin_role_permission | editor_role_permission)
+        identity_changed.send(app, identity=i)
+        with admin_or_editor_rp.require():
+            return Response('hello')
+
+    @app.route('/or_mixed1')
+    def or_mixed1():
+        result = []
+        admin_or_editor_mixed = (admin_role_permission | editor_permission)
+
+        i = Identity('admin')
+        identity_changed.send(app, identity=i)
+        with admin_or_editor_mixed.require():
+            result.append('good')
+
+        i = Identity('editor')
+        identity_changed.send(app, identity=i)
+        with admin_or_editor_mixed.require():
+            result.append('good')
+
+        return Response(''.join(result))
+
+    @app.route('/or_mixed2')  # reversed type of the above.
+    def or_mixed2():
+        result = []
+        admin_or_editor_mixed = (admin_permission | editor_role_permission)
+
+        i = Identity('admin')
+        identity_changed.send(app, identity=i)
+        with admin_or_editor_mixed.require():
+            result.append('good')
+
+        i = Identity('editor')
+        identity_changed.send(app, identity=i)
+        with admin_or_editor_mixed.require():
+            result.append('good')
+
+        return Response(''.join(result))
 
     @app.route('/g')
     @admin_permission.require()
@@ -173,6 +226,15 @@ def mkapp(with_factory=False):
 def mkadmin():
     i = Identity('ali')
     return i
+
+
+class BasePermissionUnitTests(unittest.TestCase):
+
+    def test_or_permission(self):
+        admin_or_editor_rp = (admin_role_permission | editor_role_permission)
+        self.assertTrue(isinstance(admin_or_editor_rp, OrPermission))
+        self.assertEqual(admin_or_editor_rp.permissions,
+            set(admin_role_permission, editor_role_permission))
 
 
 class PrincipalUnitTests(unittest.TestCase):
@@ -306,6 +368,13 @@ class PrincipalApplicationTests(unittest.TestCase):
     def test_or_permissions(self):
         assert self.client.open('/e').data == b'hello'
         assert self.client.open('/f').data == b'hello'
+
+    def test_base_or_permissions(self):
+        assert self.client.open('/or_base').data == b'hello'
+
+    def test_mixed_or_permissions(self):
+        assert self.client.open('/or_mixed1').data == b'goodgood'
+        assert self.client.open('/or_mixed2').data == b'goodgood'
 
     def test_and_permissions_view_denied(self):
         self.assertRaises(PermissionDenied, self.client.open, '/g')
