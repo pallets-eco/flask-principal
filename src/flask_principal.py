@@ -234,6 +234,11 @@ class BasePermission(object):
         """
         return OrPermission(self, other)
 
+    def __and__(self, other):
+        """See ``AndPermission``.
+        """
+        return AndPermission(self, other)
+
     def require(self, http_exception=None):
         """Create a principal for this permission.
 
@@ -305,6 +310,23 @@ class OrPermission(_NaryOperatorPermission):
             if p.allows(identity):
                 return True
         return False
+
+
+class AndPermission(_NaryOperatorPermission):
+    """Result of bitwise ``and`` of BasePermission"""
+
+    def allows(self, identity):
+        """
+        Checks for any of the nested permission instances that disallow
+        the identity and return False, else return True.
+
+        :param identity: The identity.
+        """
+
+        for p in self.permissions:
+            if not p.allows(identity):
+                return False
+        return True
 
 
 class Permission(BasePermission):

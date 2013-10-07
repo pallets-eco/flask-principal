@@ -5,7 +5,7 @@ import unittest
 
 from flask import Flask, Response
 
-from flask_principal import BasePermission, OrPermission
+from flask_principal import BasePermission, OrPermission, AndPermission
 from flask_principal import Principal, Permission, Denial, RoleNeed, \
     PermissionDenied, identity_changed, Identity, identity_loaded
 
@@ -96,6 +96,39 @@ def mkapp(with_factory=False):
         identity_changed.send(app, identity=i)
         with admin_or_editor.require():
             return Response('hello')
+
+    @app.route('/and_base_fail')
+    def and_base_fail():
+        i = mkadmin()
+        admin_and_editor_rp = (admin_role_permission & editor_role_permission)
+        identity_changed.send(app, identity=i)
+        with admin_and_editor_rp.require():
+            return Response('fail')
+
+    @app.route('/and_base_success')
+    def and_base_success():
+        i = Identity('admin_editor')
+        identity_changed.send(app, identity=i)
+        # using both formerly default, calling parent __and__
+        admin_and_editor_rp = (admin_permission & editor_permission)
+        with admin_and_editor_rp.require():
+            return Response('good')
+
+    @app.route('/and_mixed1')
+    def and_mixed1():
+        admin_and_editor_mixed = (admin_role_permission & editor_permission)
+        i = Identity('editor')
+        identity_changed.send(app, identity=i)
+        with admin_and_editor_mixed.require():
+            return Response('fail')
+
+    @app.route('/and_mixed2')  # reversed type of the above.
+    def and_mixed2():
+        admin_and_editor_mixed = (admin_permission & editor_role_permission)
+        i = Identity('admin_editor')
+        identity_changed.send(app, identity=i)
+        with admin_and_editor_mixed.require():
+            return Response('good')
 
     @app.route('/or_base')
     def or_base():
@@ -234,7 +267,15 @@ class BasePermissionUnitTests(unittest.TestCase):
         admin_or_editor_rp = (admin_role_permission | editor_role_permission)
         self.assertTrue(isinstance(admin_or_editor_rp, OrPermission))
         self.assertEqual(admin_or_editor_rp.permissions,
-            set(admin_role_permission, editor_role_permission))
+            set([admin_role_permission, editor_role_permission]))
+
+    def test_and_permission(self):
+        admin_and_editor_rp = (admin_role_permission & editor_role_permission)
+        self.assertTrue(isinstance(admin_and_editor_rp, AndPermission))
+        self.assertEqual(admin_and_editor_rp.permissions,
+            set([admin_role_permission, editor_role_permission]))
+
+    # TODO test manual construction
 
 
 class PrincipalUnitTests(unittest.TestCase):
@@ -375,6 +416,14 @@ class PrincipalApplicationTests(unittest.TestCase):
     def test_mixed_or_permissions(self):
         assert self.client.open('/or_mixed1').data == b'goodgood'
         assert self.client.open('/or_mixed2').data == b'goodgood'
+
+    def test_base_and_permissions(self):
+        self.assertRaises(PermissionDenied, self.client.open, '/and_base_fail')
+        self.assertEqual(self.client.open('/and_base_success').data, b'good')
+
+    def test_mixed_and_permissions(self):
+        self.assertRaises(PermissionDenied, self.client.open, '/and_mixed1')
+        self.assertEqual(self.client.open('/and_mixed2').data, b'good')
 
     def test_and_permissions_view_denied(self):
         self.assertRaises(PermissionDenied, self.client.open, '/g')
