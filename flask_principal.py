@@ -99,7 +99,7 @@ TypeNeed.__doc__ = """A need with the method preset to `"type"`."""
 
 
 ActionNeed = partial(Need, 'action')
-TypeNeed.__doc__ = """A need with the method preset to `"action"`."""
+ActionNeed.__doc__ = """A need with the method preset to `"action"`."""
 
 
 ItemNeed = namedtuple('ItemNeed', ['method', 'value', 'type'])
