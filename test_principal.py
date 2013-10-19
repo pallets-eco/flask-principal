@@ -6,6 +6,7 @@ import unittest
 from flask import Flask, Response
 
 from flask_principal import BasePermission, OrPermission, AndPermission
+from flask_principal import NotPermission
 from flask_principal import Principal, Permission, Denial, RoleNeed, \
     PermissionDenied, identity_changed, Identity, identity_loaded
 
@@ -43,6 +44,8 @@ def _on_principal_init(sender, identity):
         'manager_editor': (RoleNeed('editor'), RoleNeed('manager')),
         'reviewer_editor': (RoleNeed('editor'), RoleNeed('reviewer')),
         'admin_manager': (RoleNeed('admin'), RoleNeed('manager')),
+        'admin_editor_manager': (
+            RoleNeed('admin'), RoleNeed('editor'), RoleNeed('manager')),
     }
 
     roles = role_map.get(identity.id)
@@ -125,6 +128,34 @@ def mkapp(with_factory=False):
         with admin_and_editor_rp.require():
             return Response('good')
 
+    @app.route('/and_bunch')
+    def and_bunch():
+        result = []
+
+        bunch = AndPermission(
+            admin_role_permission,
+            editor_role_permission,
+            manager_role_permission,
+        )
+
+        identity_changed.send(app, identity=Identity('admin'))
+        if bunch.can():
+            result.append('bad')
+
+        identity_changed.send(app, identity=Identity('manager'))
+        if bunch.can():
+            result.append('bad')
+
+        identity_changed.send(app, identity=Identity('reviewer'))
+        if bunch.can():
+            result.append('bad')
+
+        identity_changed.send(app, identity=Identity('admin_editor_manager'))
+        if bunch.can():
+            result.append('good')
+
+        return ''.join(result)
+
     @app.route('/and_mixed1')
     def and_mixed1():
         admin_and_editor_mixed = (admin_role_permission & editor_permission)
@@ -148,6 +179,31 @@ def mkapp(with_factory=False):
         identity_changed.send(app, identity=i)
         with admin_or_editor_rp.require():
             return Response('hello')
+
+    @app.route('/or_bunch')
+    def or_bunch():
+        result = []
+
+        bunch = OrPermission(
+            admin_role_permission,
+            editor_role_permission,
+            manager_role_permission,
+            reviewer_role_permission,
+        )
+
+        identity_changed.send(app, identity=Identity('admin'))
+        if bunch.can():
+            result.append('good')
+
+        identity_changed.send(app, identity=Identity('manager'))
+        if bunch.can():
+            result.append('good')
+
+        identity_changed.send(app, identity=Identity('reviewer'))
+        if bunch.can():
+            result.append('good')
+
+        return ''.join(result)
 
     @app.route('/or_mixed1')
     def or_mixed1():
@@ -553,6 +609,9 @@ class PrincipalApplicationTests(unittest.TestCase):
     def test_base_or_permissions(self):
         assert self.client.open('/or_base').data == b'hello'
 
+    def test_or_permissions_bunch(self):
+        self.assertEqual(self.client.open('/or_bunch').data, b'goodgoodgood')
+
     def test_base_not_permissions(self):
         self.assertEqual(self.client.open('/not_base').data, b'editor')
 
@@ -590,6 +649,9 @@ class PrincipalApplicationTests(unittest.TestCase):
     def test_and_permissions_view_with_http_exc_decorated(self):
         response = self.client.open("/k")
         assert response.status_code == 403
+
+    def test_and_permissions_bunch(self):
+        self.assertEqual(self.client.open('/and_bunch').data, b'good')
 
     def test_and_permissions_view_with_custom_errhandler(self):
         app = mkapp()
