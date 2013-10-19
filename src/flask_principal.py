@@ -239,6 +239,11 @@ class BasePermission(object):
         """
         return AndPermission(self, other)
 
+    def __invert__(self):
+        """See ``NotPermission``.
+        """
+        return NotPermission(self)
+
     def require(self, http_exception=None):
         """Create a principal for this permission.
 
@@ -295,6 +300,9 @@ class _NaryOperatorPermission(BasePermission):
         self.permissions = set(permissions)
 
 
+# These classes would be unnecessary if we have predicate calculus
+# primatives of some kind.
+
 class OrPermission(_NaryOperatorPermission):
     """Result of bitwise ``or`` of BasePermission"""
 
@@ -327,6 +335,25 @@ class AndPermission(_NaryOperatorPermission):
             if not p.allows(identity):
                 return False
         return True
+
+
+class NotPermission(BasePermission):
+    """
+    Result of bitwise ``not`` of BasePermission
+
+    Really could be implemented by returning a transformed result of the
+    source class of itself, but for the sake of clear presentation I am
+    not doing that.
+    """
+
+    def __init__(self, permission):
+        self.permission = permission
+
+    def __invert__(self):
+        return self.permission
+
+    def allows(self, identity):
+        return not self.permission.allows(identity)
 
 
 class Permission(BasePermission):

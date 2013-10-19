@@ -14,6 +14,8 @@ admin_permission = Permission(RoleNeed('admin'))
 admin_or_editor = Permission(RoleNeed('admin'), RoleNeed('editor'))
 editor_permission = Permission(RoleNeed('editor'))
 manager_permission = Permission(RoleNeed('manager'))
+admin_or_editor_or_manager = Permission(
+    RoleNeed('admin'), RoleNeed('editor'), RoleNeed('manager'))
 
 admin_denied = Denial(RoleNeed('admin'))
 
@@ -40,6 +42,7 @@ def _on_principal_init(sender, identity):
         'manager': (RoleNeed('manager'),),
         'manager_editor': (RoleNeed('editor'), RoleNeed('manager')),
         'reviewer_editor': (RoleNeed('editor'), RoleNeed('reviewer')),
+        'admin_manager': (RoleNeed('admin'), RoleNeed('manager')),
     }
 
     roles = role_map.get(identity.id)
@@ -180,6 +183,25 @@ def mkapp(with_factory=False):
 
         return Response(''.join(result))
 
+    @app.route('/not_base')
+    def not_base():
+        result = []
+        not_admin_perm = ~admin_role_permission
+
+        identity_changed.send(app, identity=Identity('admin'))
+        if not_admin_perm.can():
+            result.append('admin')
+
+        identity_changed.send(app, identity=Identity('editor'))
+        if not_admin_perm.can():
+            result.append('editor')
+
+        identity_changed.send(app, identity=Identity('admin_manager'))
+        if not_admin_perm.can():
+            result.append('admin_manager')
+
+        return Response(''.join(result))
+
     @app.route('/mixed_ops_fail')
     def mixed_ops_fail():
         result = []
@@ -241,6 +263,43 @@ def mkapp(with_factory=False):
             result.append('good')
 
         i = Identity('admin')
+        identity_changed.send(app, identity=i)
+        if mixed_perms.can():
+            result.append('bad')
+
+        return Response(''.join(result))
+
+    @app.route('/mixed_ops3')
+    def mixed_ops3():
+        result = []
+        mixed_perms = (
+            ((admin_permission & editor_permission) |
+                (manager_role_permission & editor_role_permission)) &
+            ~(manager_role_permission & admin_permission) &
+            ~reviewer_role_permission
+        )
+
+        i = Identity('manager_editor')
+        identity_changed.send(app, identity=i)
+        if mixed_perms.can():
+            result.append('good')
+
+        i = Identity('admin_editor')
+        identity_changed.send(app, identity=i)
+        if mixed_perms.can():
+            result.append('good')
+
+        i = Identity('admin_manager')
+        identity_changed.send(app, identity=i)
+        if mixed_perms.can():
+            result.append('bad')
+
+        i = Identity('manager_editor_admin')
+        identity_changed.send(app, identity=i)
+        if mixed_perms.can():
+            result.append('bad')
+
+        i = Identity('reviewer')
         identity_changed.send(app, identity=i)
         if mixed_perms.can():
             result.append('bad')
@@ -446,6 +505,12 @@ class PrincipalUnitTests(unittest.TestCase):
         assert p3.excludes == p4.excludes
         assert p3.excludes == p3excludes
 
+    def test_permission_not(self):
+        p1 = Permission(RoleNeed('boss'), RoleNeed('lackey'))
+        p2 = ~p1
+        p3 = ~p2
+        assert p3 == p1
+
     def test_contains(self):
         p1 = Permission(RoleNeed('boss'), RoleNeed('lackey'))
         p2 = Permission(RoleNeed('lackey'))
@@ -488,6 +553,9 @@ class PrincipalApplicationTests(unittest.TestCase):
     def test_base_or_permissions(self):
         assert self.client.open('/or_base').data == b'hello'
 
+    def test_base_not_permissions(self):
+        self.assertEqual(self.client.open('/not_base').data, b'editor')
+
     def test_mixed_or_permissions(self):
         assert self.client.open('/or_mixed1').data == b'goodgood'
         assert self.client.open('/or_mixed2').data == b'goodgood'
@@ -507,6 +575,7 @@ class PrincipalApplicationTests(unittest.TestCase):
     def test_mixed_and_or_permissions(self):
         self.assertEqual(self.client.open('/mixed_ops1').data, b'goodgoodgood')
         self.assertEqual(self.client.open('/mixed_ops2').data, b'goodgood')
+        self.assertEqual(self.client.open('/mixed_ops3').data, b'goodgood')
 
     def test_and_permissions_view_denied(self):
         self.assertRaises(PermissionDenied, self.client.open, '/g')
