@@ -232,16 +232,25 @@ class BasePermission(object):
     def __or__(self, other):
         """See ``OrPermission``.
         """
+        return self.or_(other)
+
+    def or_(self, other):
         return OrPermission(self, other)
 
     def __and__(self, other):
         """See ``AndPermission``.
         """
+        return self.and_(other)
+
+    def and_(self, other):
         return AndPermission(self, other)
 
     def __invert__(self):
         """See ``NotPermission``.
         """
+        return self.invert()
+
+    def invert(self):
         return NotPermission(self)
 
     def require(self, http_exception=None):
@@ -349,7 +358,7 @@ class NotPermission(BasePermission):
     def __init__(self, permission):
         self.permission = permission
 
-    def __invert__(self):
+    def invert(self):
         return self.permission
 
     def allows(self, identity):
