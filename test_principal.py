@@ -222,13 +222,28 @@ def mkapp(with_factory=False):
 
         i = Identity('manager_editor')
         identity_changed.send(app, identity=i)
-        with mixed_perms.require():
+        if mixed_perms.can():
             result.append('good')
+
+        i = Identity('manager')
+        identity_changed.send(app, identity=i)
+        if mixed_perms.can():
+            result.append('bad')
+
+        i = Identity('editor')
+        identity_changed.send(app, identity=i)
+        if mixed_perms.can():
+            result.append('bad')
 
         i = Identity('admin_editor')
         identity_changed.send(app, identity=i)
-        with mixed_perms.require():
+        if mixed_perms.can():
             result.append('good')
+
+        i = Identity('admin')
+        identity_changed.send(app, identity=i)
+        if mixed_perms.can():
+            result.append('bad')
 
         return Response(''.join(result))
 
