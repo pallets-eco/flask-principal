@@ -31,7 +31,7 @@ setup(
     py_modules=['flask_principal'],
     zip_safe=False,
     platforms='any',
-    install_requires=['Flask', 'blinker'],
+    install_requires=['Flask'],
     test_suite='nose.collector',
     tests_require=['nose'],
     classifiers=[
