@@ -330,7 +330,7 @@ class Permission(object):
 
         :param identity: The identity
         """
-        if self.needs and not self.needs.intersection(identity.provides):
+        if not self.needs.issubset(identity.provides):
             return False
 
         if self.excludes and self.excludes.intersection(identity.provides):
