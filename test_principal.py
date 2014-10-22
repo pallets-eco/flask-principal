@@ -6,11 +6,12 @@ import unittest
 from flask import Flask, Response
 
 from flask_principal import Principal, Permission, Denial, RoleNeed, \
-    PermissionDenied, identity_changed, Identity, identity_loaded
+    PermissionDenied, identity_changed, Identity, identity_loaded, \
+    OrPermission
 
 anon_permission = Permission()
 admin_permission = Permission(RoleNeed('admin'))
-admin_or_editor = Permission(RoleNeed('admin'), RoleNeed('editor'))
+admin_or_editor = OrPermission(RoleNeed('admin'), RoleNeed('editor'))
 editor_permission = Permission(RoleNeed('editor'))
 admin_denied = Denial(RoleNeed('admin'))
 

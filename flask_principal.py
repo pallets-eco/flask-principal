@@ -333,7 +333,7 @@ class Permission(object):
         if not self.needs.issubset(identity.provides):
             return False
 
-        if self.excludes and self.excludes.intersection(identity.provides):
+        if self.excludes.intersection(identity.provides):
             return False
 
         return True
@@ -345,6 +345,18 @@ class Permission(object):
         permission
         """
         return self.require().can()
+
+
+class OrPermission(Permission):
+
+    def allows(self, identity):
+        if self.needs and not self.needs.intersection(identity.provides):
+            return False
+        
+        if self.excludes.intersection(identity.provides):
+            return False
+
+        return True
 
 
 class Denial(Permission):
