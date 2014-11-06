@@ -381,12 +381,9 @@ class Principal(object):
     def __init__(self, app=None, use_sessions=True, skip_static=False):
         self.identity_loaders = deque()
         self.identity_savers = deque()
-        # XXX This will probably vanish for a better API
-        self.use_sessions = use_sessions
-        self.skip_static = skip_static
 
         if app is not None:
-            self.init_app(app)
+            self.init_app(app, use_sessions, skip_static)
 
     def _init_app(self, app):
         from warnings import warn
@@ -396,7 +393,11 @@ class Principal(object):
         )
         self.init_app(app)
 
-    def init_app(self, app):
+    def init_app(self, app, use_sessions=True, skip_static=False):
+        # XXX This will probably vanish for a better API
+        self.use_sessions = use_sessions
+        self.skip_static = skip_static
+
         if hasattr(app, 'static_url_path'):
             self._static_path = app.static_url_path
         else:
