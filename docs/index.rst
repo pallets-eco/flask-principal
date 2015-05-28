@@ -268,6 +268,54 @@ of the resource, in this case the blog post::
 
         abort(403)  # HTTP Forbidden
 
+Combining Permissions
+---------------------
+
+While the core constructs provided are sufficient for the common simple use
+cases, for more complex cases it is possible to combine existing permissions
+through the use of bitwise operators to result in a new permission object that
+can do the complex validations.  For instance, it is to create a permission
+where the identity has the both the `"blog_poster"` or `"blog_reviewer"` role
+but not the `"under_probation"` role.  Example:: 
+
+    blog_admin = Permission(RoleNeed('blog_admin'))
+    blog_poster = Permission(RoleNeed('blog_poster'))
+    blog_reviewer = Permission(RoleNeed('blog_reviewer'))
+    under_probation = Permission(RoleNeed('under_probation'))
+
+    prize_permission = ((blog_poster | blog_reviewer) & ~under_probation)
+
+    @app.route('/blog/prizes')
+    @prize_permission.require()
+    def prize_redeem():
+        # find out what prizes are available to blog users that are not
+        # under probation
+        return render_template('prize_redeem.html')
+
+Any number of these can be chained, but it is also possible to use the
+constructor classes directly to combine these things together::
+
+    from flask.ext.principal import AndPermission, OrPermission
+
+    allperms = AndPermission(blog_poster, blog_reviewer, blog_admin)
+    anyperms = OrPermission(blog_poster, blog_reviewer, blog_admin)
+
+Custom Permissions
+------------------
+
+Sometimes your permissions may be determined by other circumstances specific to
+whatever you need to implement.  For that you can create custom classes to
+address your needs like so::
+
+    from flask.ext.principal import BasePermission
+
+    class CustomPermission(BasePermission):
+        def allows(self, identity):
+            # Implement other conditions that allow this to pass
+            return False
+
+These custom permissions can be combined together via the bitwise operators as
+explained above.
 
 API
 ===

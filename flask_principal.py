@@ -211,18 +211,10 @@ class IdentityContext(object):
         return False
 
 
-class Permission(object):
-    """Represents needs, any of which must be present to access a resource
+class BasePermission(object):
+    """The Base Permission."""
 
-    :param needs: The needs for this permission
-    """
-    def __init__(self, *needs):
-        """A set of needs, any of which must be present in an identity to have
-        access.
-        """
-
-        self.needs = set(needs)
-        self.excludes = set()
+    http_exception = None
 
     def _bool(self):
         return bool(self.can())
@@ -237,25 +229,29 @@ class Permission(object):
         """
         return self._bool()
 
-    def __and__(self, other):
-        """Does the same thing as ``self.union(other)``
-        """
-        return self.union(other)
-
     def __or__(self, other):
-        """Does the same thing as ``self.difference(other)``
+        """See ``OrPermission``.
         """
-        return self.difference(other)
+        return self.or_(other)
 
-    def __contains__(self, other):
-        """Does the same thing as ``other.issubset(self)``.
+    def or_(self, other):
+        return OrPermission(self, other)
+
+    def __and__(self, other):
+        """See ``AndPermission``.
         """
-        return other.issubset(self)
+        return self.and_(other)
 
-    def __repr__(self):
-        return '<{0} needs={1} excludes={2}>'.format(
-            self.__class__.__name__, self.needs, self.excludes
-        )
+    def and_(self, other):
+        return AndPermission(self, other)
+
+    def __invert__(self):
+        """See ``NotPermission``.
+        """
+        return self.invert()
+
+    def invert(self):
+        return NotPermission(self)
 
     def require(self, http_exception=None):
         """Create a principal for this permission.
@@ -269,6 +265,10 @@ class Permission(object):
 
         :param http_exception: the HTTP exception code (403, 401 etc)
         """
+
+        if http_exception is None:
+            http_exception = self.http_exception
+
         return IdentityContext(self, http_exception)
 
     def test(self, http_exception=None):
@@ -285,6 +285,120 @@ class Permission(object):
 
         with self.require(http_exception):
             pass
+
+    def allows(self, identity):
+        """Whether the identity can access this permission.
+
+        :param identity: The identity
+        """
+
+        raise NotImplementedError
+
+    def can(self):
+        """Whether the required context for this permission has access
+
+        This creates an identity context and tests whether it can access this
+        permission
+        """
+        return self.require().can()
+
+
+class _NaryOperatorPermission(BasePermission):
+
+    def __init__(self, *permissions):
+        self.permissions = set(permissions)
+
+
+# These classes would be unnecessary if we have predicate calculus
+# primatives of some kind.
+
+class OrPermission(_NaryOperatorPermission):
+    """Result of bitwise ``or`` of BasePermission"""
+
+    def allows(self, identity):
+        """
+        Checks for any of the nested permission instances that allow the
+        identity and return True, else return False.
+
+        :param identity: The identity.
+        """
+
+        for p in self.permissions:
+            if p.allows(identity):
+                return True
+        return False
+
+
+class AndPermission(_NaryOperatorPermission):
+    """Result of bitwise ``and`` of BasePermission"""
+
+    def allows(self, identity):
+        """
+        Checks for any of the nested permission instances that disallow
+        the identity and return False, else return True.
+
+        :param identity: The identity.
+        """
+
+        for p in self.permissions:
+            if not p.allows(identity):
+                return False
+        return True
+
+
+class NotPermission(BasePermission):
+    """
+    Result of bitwise ``not`` of BasePermission
+
+    Really could be implemented by returning a transformed result of the
+    source class of itself, but for the sake of clear presentation I am
+    not doing that.
+    """
+
+    def __init__(self, permission):
+        self.permission = permission
+
+    def invert(self):
+        return self.permission
+
+    def allows(self, identity):
+        return not self.permission.allows(identity)
+
+
+class Permission(BasePermission):
+    """Represents needs, any of which must be present to access a resource
+
+    :param needs: The needs for this permission
+    """
+    def __init__(self, *needs):
+        """A set of needs, any of which must be present in an identity to have
+        access.
+        """
+
+        self.needs = set(needs)
+        self.excludes = set()
+
+    def __or__(self, other):
+        """Does the same thing as ``self.union(other)``
+        """
+        if isinstance(other, Permission):
+            return self.union(other)
+        return super(Permission, self).__or__(other)
+
+    def __sub__(self, other):
+        """Does the same thing as ``self.difference(other)``
+        """
+        return self.difference(other)
+
+    def __contains__(self, other):
+        """Does the same thing as ``other.issubset(self)``.
+        """
+        return other.issubset(self)
+
+    def __repr__(self):
+        return '<{0} needs={1} excludes={2}>'.format(
+            self.__class__.__name__, self.needs, self.excludes
+        )
 
     def reverse(self):
         """
@@ -337,14 +451,6 @@ class Permission(object):
             return False
 
         return True
-
-    def can(self):
-        """Whether the required context for this permission has access
-
-        This creates an identity context and tests whether it can access this
-        permission
-        """
-        return self.require().can()
 
 
 class Denial(Permission):
