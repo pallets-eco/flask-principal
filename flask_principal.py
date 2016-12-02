@@ -291,10 +291,14 @@ class Permission(object):
         Returns reverse of current state (needs->excludes, excludes->needs)
         """
 
-        p = Permission()
-        p.needs.update(self.excludes)
-        p.excludes.update(self.needs)
-        return p
+        tmp, needs, excludes = set(), self.needs, self.excludes
+        while needs:
+            tmp.add(needs.pop())
+        while excludes:
+            needs.add(excludes.pop())
+        while tmp:
+            excludes.add(tmp.pop())
+        return self
 
     def union(self, other):
         """Create a new permission with the requirements of the union of this
