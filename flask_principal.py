@@ -358,15 +358,15 @@ class Denial(Permission):
 
 
 def session_identity_loader():
-    if 'identity.id' in session and 'identity.auth_type' in session:
-        identity = Identity(session['identity.id'],
-                            session['identity.auth_type'])
+    if 'identity_id' in session and 'identity_auth_type' in session:
+        identity = Identity(session['identity_id'],
+                            session['identity_auth_type'])
         return identity
 
 
 def session_identity_saver(identity):
-    session['identity.id'] = identity.id
-    session['identity.auth_type'] = identity.auth_type
+    session['identity_id'] = identity.id
+    session['identity_auth_type'] = identity.auth_type
     session.modified = True
 
 
