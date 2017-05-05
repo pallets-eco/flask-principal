@@ -375,10 +375,12 @@ class Principal(object):
 
     :param app: The flask application to extend
     :param use_sessions: Whether to use sessions to extract and store
-                         identification.
-    :param skip_static: Whether to ignore static endpoints.
+                         identification. If it is not provided it will check
+                         ``PRINCIPAL_USE_SESSIONS`` configuration.
+    :param skip_static: Whether to ignore static endpoints. If it is not
+                        provided it will check ``PRINCIPAL_SKIP_STATIC``.
     """
-    def __init__(self, app=None, use_sessions=True, skip_static=False):
+    def __init__(self, app=None, use_sessions=None, skip_static=None):
         self.identity_loaders = deque()
         self.identity_savers = deque()
         # XXX This will probably vanish for a better API
@@ -405,7 +407,7 @@ class Principal(object):
         app.before_request(self._on_before_request)
         identity_changed.connect(self._on_identity_changed, app)
 
-        if self.use_sessions:
+        if _resolve_configuration('use_sessions', self, app, default=True):
             self.identity_loader(session_identity_loader)
             self.identity_saver(session_identity_saver)
 
@@ -480,7 +482,16 @@ class Principal(object):
                 return
 
     def _is_static_route(self):
-        return (
-            self.skip_static and
-            (self._static_path and request.path.startswith(self._static_path))
+        return _resolve_configuration(
+            'skip_static', self, current_app, default=False
+        ) and (
+                self._static_path and request.path.startswith(self._static_path)
         )
+
+
+def _resolve_configuration(key, ext, app, default=None):
+    """Resolve configuration value."""
+    value = getattr(ext, key.lower(), None)
+    if value is not None:
+        return value
+    return app.config.get('PRINCIPAL_{0}'.format(key.upper()), default)
