@@ -88,7 +88,7 @@ restriction is easy to define as both a decorator and a context manager. A
 simple quickstart example is presented with commenting::
 
     from flask import Flask, Response
-    from flask.ext.principal import Principal, Permission, RoleNeed
+    from flask_principal import Principal, Permission, RoleNeed
 
     app = Flask(__name__)
 
@@ -121,10 +121,10 @@ Flask-Principal::
 
 
     from flask import Flask, current_app, request, session
-    from flask.ext.login import LoginManager, login_user, logout_user, \
+    from flask_login import LoginManager, login_user, logout_user, \
          login_required, current_user
     from flask.ext.wtf import Form, TextField, PasswordField, Required, Email
-    from flask.ext.principal import Principal, Identity, AnonymousIdentity, \
+    from flask_principal import Principal, Identity, AnonymousIdentity, \
          identity_changed
 
     app = Flask(__name__)
@@ -191,8 +191,8 @@ following is another hypothetical example using Flask-Login and could be
 combined with the previous example. It shows how one might use a role based
 permission scheme::
 
-    from flask.ext.login import current_user
-    from flask.ext.principal import identity_loaded, RoleNeed, UserNeed
+    from flask_login import current_user
+    from flask_principal import identity_loaded, RoleNeed, UserNeed
 
     @identity_loaded.connect_via(app)
     def on_identity_loaded(sender, identity):
@@ -221,8 +221,8 @@ handler. For example::
     from collections import namedtuple
     from functools import partial
 
-    from flask.ext.login import current_user
-    from flask.ext.principal import identity_loaded, Permission, RoleNeed, \
+    from flask_login import current_user
+    from flask_principal import identity_loaded, Permission, RoleNeed, \
          UserNeed
 
     BlogPostNeed = namedtuple('blog_post', ['method', 'value'])
