@@ -1,11 +1,8 @@
 blank_issues_enabled: false
 contact_links:
-  - name: Security issue
-    url: https://github.com/pallets-eco/flask-principal/security/advisories/new
-    about: Do not report security issues publicly. Create a private advisory.
-  - name: Questions
-    url: https://github.com/pallets-eco/flask-principal/discussions/
+  - name: Questions on Discussions
+    url: https://github.com/pallets-eco/flask-debugtoolbar/discussions/
     about: Ask questions about your own code on the Discussions tab.
-  - name: Questions on
+  - name: Questions on Chat
     url: https://discord.gg/pallets
     about: Ask questions about your own code on our Discord chat.

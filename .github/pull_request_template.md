@@ -15,7 +15,7 @@ fixes #<issue number>
 -->
 
 <!--
-Ensure each step in CONTRIBUTING.rst is complete, especially the following:
+Ensure each step in the contributing guide is complete, especially the following:
 
 - Add tests that demonstrate the correct behavior of the change. Tests
   should fail without the change.
