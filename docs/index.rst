@@ -33,7 +33,7 @@ The major components are the Identity, Needs, Permission, and the IdentityContex
        either pairs of (method, value) where method is used to specify
        common things such as `"role"`, `"user"`, etc. And the value is the
        value. An example of such is `('role', 'admin')`. Which would be a
-       Need for a admin role. Or Triples for use-cases such as "The permission
+       Need for an admin role. Or Triples for use-cases such as "The permission
        to edit a particular instance of an object or row", which might be represented
        as the triple `('article', 'edit', 46)`, where 46 is the key/ID for that
        row/object.
