@@ -46,10 +46,5 @@ jobs:
           python-version: '3.x'
           cache: pip
           cache-dependency-path: requirements*/*.txt
-      - name: cache mypy
-        uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
-        with:
-          path: ./.mypy_cache
-          key: mypy|${{ hashFiles('pyproject.toml') }}
       - run: pip install tox
       - run: tox run -e typing

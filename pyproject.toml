@@ -46,16 +46,6 @@ source = ["src", "tests"]
 [tool.coverage.paths]
 source = ["src", "*/site-packages"]
 
-[tool.mypy]
-python_version = "3.8"
-files = ["src", "tests"]
-show_error_codes = true
-pretty = true
-strict = true
-
-[[tool.mypy.overrides]]
-ignore_missing_imports = true
-
 [tool.pyright]
 pythonVersion = "3.8"
 include = ["src", "tests"]

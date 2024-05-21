@@ -61,12 +61,6 @@ markupsafe==2.1.5
     # via
     #   -r docs.txt
     #   jinja2
-mypy==1.10.0
-    # via -r typing.txt
-mypy-extensions==1.0.0
-    # via
-    #   -r typing.txt
-    #   mypy
 nodeenv==1.8.0
     # via
     #   -r typing.txt
@@ -151,10 +145,6 @@ sphinxcontrib-serializinghtml==1.1.5
     #   sphinx
 tox==4.15.0
     # via -r dev.in
-typing-extensions==4.11.0
-    # via
-    #   -r typing.txt
-    #   mypy
 urllib3==2.2.1
     # via
     #   -r docs.txt
