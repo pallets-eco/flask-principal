@@ -40,7 +40,7 @@ causes the identity to be saved in the session.
 
 For example::
 
-    from flaskext.principal import Identity, identity_changed
+    from flask_principal import Identity, identity_changed
 
     def login_view(req):
         username = req.form.get('username')
@@ -62,7 +62,7 @@ major activities:
 
 For example::
 
-    from flaskext.principal import identity_loaded, RoleNeed, UserNeed
+    from flask_principal import identity_loaded, RoleNeed, UserNeed
 
     @identity_loaded.connect
     def on_identity_loaded(sender, identity):
@@ -167,7 +167,7 @@ class AnonymousIdentity(Identity):
 class IdentityContext(object):
     """The context of an identity for a permission.
 
-    .. note:: The principal is usually created by the flaskext.Permission.require method
+    .. note:: The principal is usually created by the flask_principal.Permission.require method
               call for normal use-cases.
 
     The principal behaves as either a context manager or a decorator. The
