@@ -250,6 +250,12 @@ class PrincipalApplicationTests(unittest.TestCase):
     def test_and_permissions_view(self):
         self.assertRaises(PermissionDenied, self.client.open, '/g')
 
+    def test_and_permissions_view_denied_identity_changed(self):
+        self.assertRaises(PermissionDenied, self.client.open, '/h')
+
+    def test_and_permissions_view_identity_changed(self):
+        self.assertRaises(PermissionDenied, self.client.open, '/h')
+
     def test_and_permissions_view_with_http_exc(self):
         response = self.client.open("/j")
         assert response.status_code == 403
