@@ -51,7 +51,6 @@ imagesize==1.4.1
 iniconfig==2.0.0
     # via
     #   -r tests.txt
-    #   -r typing.txt
     #   pytest
 jinja2==3.1.4
     # via
@@ -61,22 +60,12 @@ markupsafe==2.1.5
     # via
     #   -r docs.txt
     #   jinja2
-mypy==1.10.0
-    # via -r typing.txt
-mypy-extensions==1.0.0
-    # via
-    #   -r typing.txt
-    #   mypy
 nodeenv==1.8.0
-    # via
-    #   -r typing.txt
-    #   pre-commit
-    #   pyright
+    # via pre-commit
 packaging==24.0
     # via
     #   -r docs.txt
     #   -r tests.txt
-    #   -r typing.txt
     #   pallets-sphinx-themes
     #   pyproject-api
     #   pytest
@@ -91,7 +80,6 @@ platformdirs==4.2.2
 pluggy==1.5.0
     # via
     #   -r tests.txt
-    #   -r typing.txt
     #   pytest
     #   tox
 pre-commit==3.7.1
@@ -102,12 +90,8 @@ pygments==2.17.2
     #   sphinx
 pyproject-api==1.6.1
     # via tox
-pyright==1.1.363
-    # via -r typing.txt
 pytest==8.2.1
-    # via
-    #   -r tests.txt
-    #   -r typing.txt
+    # via -r tests.txt
 pyyaml==6.0.1
     # via pre-commit
 requests==2.32.0
@@ -151,10 +135,6 @@ sphinxcontrib-serializinghtml==1.1.5
     #   sphinx
 tox==4.15.0
     # via -r dev.in
-typing-extensions==4.11.0
-    # via
-    #   -r typing.txt
-    #   mypy
 urllib3==2.2.1
     # via
     #   -r docs.txt
