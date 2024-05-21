@@ -4,7 +4,7 @@
 #
 #    pip-compile docs.in
 #
-alabaster==0.7.13
+alabaster==0.7.16
     # via sphinx
 babel==2.14.0
     # via sphinx
@@ -34,7 +34,7 @@ requests==2.32.0
     # via sphinx
 snowballstemmer==2.2.0
     # via sphinx
-sphinx==7.1.2
+sphinx==7.3.7
     # via
     #   -r docs.in
     #   pallets-sphinx-themes
@@ -51,7 +51,7 @@ sphinxcontrib-log-cabinet==1.0.1
     # via -r docs.in
 sphinxcontrib-qthelp==1.0.3
     # via sphinx
-sphinxcontrib-serializinghtml==1.1.5
+sphinxcontrib-serializinghtml==1.1.10
     # via sphinx
 urllib3==2.2.1
     # via requests
