@@ -3,10 +3,18 @@ Flask-Principal Changelog
 
 Here you can see the full list of changes between each Flask-Principal release.
 
+Version 0.4.1
+-------------
+
+Unreleased
+
+- Added Pallets projects scaffolding
+- Updated docstrings. Changed ``flask.ext.principal`` imports to ``flask_principal``.
+
 Version 0.4.0
 -------------
 
-Not released yet
+Released June 14th 2013
 
 - Added Python 3 support
 - Dropped support for Python 2.5
