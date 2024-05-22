@@ -299,6 +299,8 @@ class Permission(object):
         """
 
         p = Permission()
+        # flipping the values determining whether or not the key
+        # is a need or exclude
         p.perms.update({n: not v for n, v in self.perms.items()})
         return p
 
@@ -309,6 +311,7 @@ class Permission(object):
         :param other: The other permission
         """
         p = Permission()
+        # union-ing needs and excludes from both Permissions
         p.perms = {
             **{n: True for n in self.needs.union(other.needs)},
             **{e: False for e in self.excludes.union(other.excludes)}
@@ -321,6 +324,7 @@ class Permission(object):
         """
 
         p = Permission()
+        # diff-ing needs and excludes from both Permissions
         p.perms = {
             **{n: True for n in self.needs.difference(other.needs)},
             **{e: False for e in self.excludes.difference(other.excludes)}
