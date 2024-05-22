@@ -120,48 +120,76 @@ hypothetical example of how one might combine the popular
 Flask-Principal::
 
 
-    from flask import Flask, current_app, request, session
+    from flask import Flask, current_app, request, session, \
+            render_template, redirect
     from flask_login import LoginManager, login_user, logout_user, \
-         login_required, current_user
-    from flask.ext.wtf import Form, TextField, PasswordField, Required, Email
+            login_required
+    from wtforms import StringField, PasswordField
+    from flask_wtf import FlaskForm
     from flask_principal import Principal, Identity, AnonymousIdentity, \
-         identity_changed
+            identity_changed
 
     app = Flask(__name__)
+    app.config['SECRET_KEY'] = 'notsosecret'
 
     Principal(app)
 
     login_manager = LoginManager(app)
 
+    class User:
+        def __init__(self, id='1', email=None, password=None):
+            self.id = id
+            self.email = email
+            self.password = 'abcd'
+            self.is_authenticated = False
+            self.is_active = True
+            self.is_anonymous = True
+
+        def get_id(self):
+            return self.id
+    class DB:
+
+        def __init__(self):
+            pass 
+
+        def find_user(self, id=None, email=None):
+            example_user = User(id=id, email=email)
+            return example_user
+
+
     @login_manager.user_loader
     def load_user(userid):
         # Return an instance of the User model
+        datastore = DB()
         return datastore.find_user(id=userid)
 
-    class LoginForm(Form):
-        email = TextField()
-        password = PasswordField()
+    class LoginForm(FlaskForm):
+        email = StringField('email')
+        password = PasswordField('password')
 
     @app.route('/login', methods=['GET', 'POST'])
     def login():
         # A hypothetical login form that uses Flask-WTF
         form = LoginForm()
 
-        # Validate form input
-        if form.validate_on_submit():
-            # Retrieve the user from the hypothetical datastore
-            user = datastore.find_user(email=form.email.data)
-            
-            # Compare passwords (use password hashing production)
-            if form.password.data == user.password:
-                # Keep the user info in the session using Flask-Login
-                login_user(user)
+        if request.method == 'POST':
 
-                # Tell Flask-Principal the identity changed
-                identity_changed.send(current_app._get_current_object(),
-                                      identity=Identity(user.id))
+            # Validate form input
+            if form.validate_on_submit():
+                # Retrieve the user from the hypothetical datastore
+                datastore = DB()
+                user = datastore.find_user(email=form.email.data)
+                
+                # Compare passwords (use password hashing production)
+                if form.password.data == user.password:
+                    # Keep the user info in the session using Flask-Login
+                    login_user(user)
 
-                return redirect(request.args.get('next') or '/')
+                    # Tell Flask-Principal the identity changed
+                    identity_changed.send(current_app._get_current_object(),
+                                            identity=Identity(user.id))
+                    print('logged in ')
+                    return redirect(request.args.get('next') or '/')
         
         return render_template('login.html', form=form)
 
@@ -177,10 +205,29 @@ Flask-Principal::
 
         # Tell Flask-Principal the user is anonymous
         identity_changed.send(current_app._get_current_object(),
-                              identity=AnonymousIdentity())
+                                identity=AnonymousIdentity())
 
         return redirect(request.args.get('next') or '/')
 
+    @app.route('/')
+    def home():
+        return 'home page'
+    if __name__ == '__main__':
+        app.run(debug=True)
+
+The login page snippets looks like this:
+
+    <html>
+        <body>
+            <form method="POST" action="/login">
+                {{ form.csrf_token }}
+                {{ form.email.label }} {{ form.email }}<br>
+                {{ form.csrf_token }}
+                {{ form.password.label }} {{ form.password }}<br>
+                <input type="submit" value="Go">
+            </form>
+        </body>
+    </html>
 
 User Information providers
 --------------------------
