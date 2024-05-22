@@ -221,8 +221,7 @@ class Permission(object):
         access.
         """
 
-        self.needs = set(needs)
-        self.excludes = set()
+        self.perms = {n: True for n in needs}
 
     def _bool(self):
         return bool(self.can())
@@ -256,6 +255,14 @@ class Permission(object):
         return '<{0} needs={1} excludes={2}>'.format(
             self.__class__.__name__, self.needs, self.excludes
         )
+
+    @property
+    def needs(self):
+        return set(n for n in self.perms if self.perms[n])
+
+    @property
+    def excludes(self):
+        return set(n for n in self.perms if not self.perms[n])
 
     def require(self, http_exception=None):
         """Create a principal for this permission.
@@ -292,8 +299,7 @@ class Permission(object):
         """
 
         p = Permission()
-        p.needs.update(self.excludes)
-        p.excludes.update(self.needs)
+        p.perms.update({n: not v for n, v in self.perms.items()})
         return p
 
     def union(self, other):
@@ -302,8 +308,11 @@ class Permission(object):
 
         :param other: The other permission
         """
-        p = Permission(*self.needs.union(other.needs))
-        p.excludes.update(self.excludes.union(other.excludes))
+        p = Permission()
+        p.perms = {
+            **{n: True for n in self.needs.union(other.needs)},
+            **{e: False for e in self.excludes.union(other.excludes)}
+        }
         return p
 
     def difference(self, other):
@@ -311,8 +320,11 @@ class Permission(object):
         permission and not in the other.
         """
 
-        p = Permission(*self.needs.difference(other.needs))
-        p.excludes.update(self.excludes.difference(other.excludes))
+        p = Permission()
+        p.perms = {
+            **{n: True for n in self.needs.difference(other.needs)},
+            **{e: False for e in self.excludes.difference(other.excludes)}
+        }
         return p
 
     def issubset(self, other):
@@ -353,8 +365,7 @@ class Denial(Permission):
     """
 
     def __init__(self, *excludes):
-        self.excludes = set(excludes)
-        self.needs = set()
+        self.perms = {e: False for e in excludes}
 
 
 def session_identity_loader():

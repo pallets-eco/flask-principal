@@ -10,6 +10,7 @@ Unreleased
 
 - Added Pallets projects scaffolding
 - Updated docstrings. Changed ``flask.ext.principal`` imports to ``flask_principal``.
+- Updated ``Permission`` needs and excludes to never conflict with each other.
 
 Version 0.4.0
 -------------
