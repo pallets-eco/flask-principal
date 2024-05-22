@@ -10,6 +10,7 @@ Unreleased
 
 - Added Pallets projects scaffolding
 - Updated docstrings. Changed ``flask.ext.principal`` imports to ``flask_principal``.
+- Updated ``Permission`` needs and excludes to never conflict with each other.
 - Updated docs: Flask-login sections
 
 Version 0.4.0
@@ -77,5 +78,3 @@ Version 0.2
 -----------
 
 Initial development by Ali Asfshar. `Original repository <https://bitbucket.org/aafshar/flask-principal-main>`_
-
-
