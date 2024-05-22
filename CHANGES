@@ -10,6 +10,7 @@ Unreleased
 
 - Added Pallets projects scaffolding
 - Updated docstrings. Changed ``flask.ext.principal`` imports to ``flask_principal``.
+- Updated docs: Flask-login sections
 
 Version 0.4.0
 -------------
