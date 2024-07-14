@@ -12,6 +12,11 @@
 
 from __future__ import with_statement
 
+from typing import Optional
+from typing import Callable
+import typing_extensions
+import typing as t
+
 __version__ = '0.4.0'
 
 import sys
@@ -182,7 +187,7 @@ class IdentityContext(object):
         """
 
     @property
-    def identity(self):
+    def identity(self) -> t.Any:
         """The identity of this principal
         """
         return g.identity
