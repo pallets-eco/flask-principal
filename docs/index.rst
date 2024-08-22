@@ -115,7 +115,7 @@ Authentication providers
 Authentication providers should use the `identity-changed` signal to indicate
 that a request has been authenticated. For example, the following code is a
 hypothetical example of how one might combine the popular 
-`Flask-Login <http://packages.python.org/Flask-Login/>`_  extension with 
+`Flask-Login <https://flask-login.readthedocs.io/>`_  extension with 
 Flask-Principal::
 
 
