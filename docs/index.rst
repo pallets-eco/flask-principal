@@ -76,7 +76,6 @@ The major components are the Identity, Needs, Permission, and the IdentityContex
 Links
 -----
 
-* `documentation <http://packages.python.org/Flask-Principal/>`_
 * `source <http://github.com/mattupstate/flask-principal>`_
 * :doc:`changelog </changelog>`
 
