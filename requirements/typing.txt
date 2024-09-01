@@ -12,9 +12,9 @@ packaging==24.0
     # via pytest
 pluggy==1.5.0
     # via pytest
-pyright==1.1.369
+pyright==1.1.378
     # via -r typing.in
-pytest==8.2.2
+pytest==8.3.2
     # via -r typing.in
 
 # The following packages are considered to be unsafe in a requirements file:
