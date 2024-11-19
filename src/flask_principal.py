@@ -211,17 +211,10 @@ class IdentityContext(object):
         return False
 
 
-class Permission(object):
-    """Represents needs, any of which must be present to access a resource
+class BasePermission(object):
+    """The Base Permission."""
 
-    :param needs: The needs for this permission
-    """
-    def __init__(self, *needs):
-        """A set of needs, any of which must be present in an identity to have
-        access.
-        """
-
-        self.perms = {n: True for n in needs}
+    http_exception = None
 
     def _bool(self):
         return bool(self.can())
@@ -236,12 +229,162 @@ class Permission(object):
         """
         return self._bool()
 
-    def __and__(self, other):
-        """Does the same thing as ``self.union(other)``
+    def __or__(self, other):
+        """See ``OrPermission``.
         """
-        return self.union(other)
+        return self.or_(other)
+
+    def or_(self, other):
+        return OrPermission(self, other)
+
+    def __and__(self, other):
+        """See ``AndPermission``.
+        """
+        return self.and_(other)
+
+    def and_(self, other):
+        return AndPermission(self, other)
+
+    def __invert__(self):
+        """See ``NotPermission``.
+        """
+        return self.invert()
+
+    def invert(self):
+        return NotPermission(self)
+
+    def require(self, http_exception=None):
+        """Create a principal for this permission.
+
+        The principal may be used as a context manager, or a decroator.
+
+        If ``http_exception`` is passed then ``abort()`` will be called
+        with the HTTP exception code. Otherwise a ``PermissionDenied``
+        exception will be raised if the identity does not meet the
+        requirements.
+
+        :param http_exception: the HTTP exception code (403, 401 etc)
+        """
+
+        if http_exception is None:
+            http_exception = self.http_exception
+
+        return IdentityContext(self, http_exception)
+
+    def test(self, http_exception=None):
+        """
+        Checks if permission available and raises relevant exception
+        if not. This is useful if you just want to check permission
+        without wrapping everything in a require() block.
+
+        This is equivalent to::
+
+            with permission.require():
+                pass
+        """
+
+        with self.require(http_exception):
+            pass
+
+    def allows(self, identity):
+        """Whether the identity can access this permission.
+
+        :param identity: The identity
+        """
+
+        raise NotImplementedError
+
+    def can(self):
+        """Whether the required context for this permission has access
+
+        This creates an identity context and tests whether it can access this
+        permission
+        """
+        return self.require().can()
+
+
+class _NaryOperatorPermission(BasePermission):
+
+    def __init__(self, *permissions):
+        self.permissions = set(permissions)
+
+
+# These classes would be unnecessary if we have predicate calculus
+# primatives of some kind.
+
+class OrPermission(_NaryOperatorPermission):
+    """Result of bitwise ``or`` of BasePermission"""
+
+    def allows(self, identity):
+        """
+        Checks for any of the nested permission instances that allow the
+        identity and return True, else return False.
+
+        :param identity: The identity.
+        """
+
+        for p in self.permissions:
+            if p.allows(identity):
+                return True
+        return False
+
+
+class AndPermission(_NaryOperatorPermission):
+    """Result of bitwise ``and`` of BasePermission"""
+
+    def allows(self, identity):
+        """
+        Checks for any of the nested permission instances that disallow
+        the identity and return False, else return True.
+
+        :param identity: The identity.
+        """
+
+        for p in self.permissions:
+            if not p.allows(identity):
+                return False
+        return True
+
+
+class NotPermission(BasePermission):
+    """
+    Result of bitwise ``not`` of BasePermission
+
+    Really could be implemented by returning a transformed result of the
+    source class of itself, but for the sake of clear presentation I am
+    not doing that.
+    """
+
+    def __init__(self, permission):
+        self.permission = permission
+
+    def invert(self):
+        return self.permission
+
+    def allows(self, identity):
+        return not self.permission.allows(identity)
+
+
+class Permission(BasePermission):
+    """Represents needs, any of which must be present to access a resource
+
+    :param needs: The needs for this permission
+    """
+    def __init__(self, *needs):
+        """A set of needs, any of which must be present in an identity to have
+        access.
+        """
+
+        self.perms = {n: True for n in needs}
 
     def __or__(self, other):
+        """Does the same thing as ``self.union(other)``
+        """
+        if isinstance(other, Permission):
+            return self.union(other)
+        return super(Permission, self).__or__(other)
+
+    def __sub__(self, other):
         """Does the same thing as ``self.difference(other)``
         """
         return self.difference(other)
@@ -263,35 +406,6 @@ class Permission(object):
     @property
     def excludes(self):
         return set(n for n in self.perms if not self.perms[n])
-
-    def require(self, http_exception=None):
-        """Create a principal for this permission.
-
-        The principal may be used as a context manager, or a decroator.
-
-        If ``http_exception`` is passed then ``abort()`` will be called
-        with the HTTP exception code. Otherwise a ``PermissionDenied``
-        exception will be raised if the identity does not meet the
-        requirements.
-
-        :param http_exception: the HTTP exception code (403, 401 etc)
-        """
-        return IdentityContext(self, http_exception)
-
-    def test(self, http_exception=None):
-        """
-        Checks if permission available and raises relevant exception
-        if not. This is useful if you just want to check permission
-        without wrapping everything in a require() block.
-
-        This is equivalent to::
-
-            with permission.require():
-                pass
-        """
-
-        with self.require(http_exception):
-            pass
 
     def reverse(self):
         """
@@ -353,14 +467,6 @@ class Permission(object):
             return False
 
         return True
-
-    def can(self):
-        """Whether the required context for this permission has access
-
-        This creates an identity context and tests whether it can access this
-        permission
-        """
-        return self.require().can()
 
 
 class Denial(Permission):
