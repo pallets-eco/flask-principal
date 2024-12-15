@@ -37,3 +37,19 @@ jobs:
           cache-dependency-path: requirements*/*.txt
       - run: pip install tox
       - run: tox run -e ${{ matrix.tox || format('py{0}', matrix.python) }}
+  typing:
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        - uses: actions/setup-python@f677139bbe7f9c59b41e40162b753c062f5d49a3 # v5.2.0
+          with:
+            python-version: '3.x'
+            cache: pip
+            cache-dependency-path: requirements*/*.txt
+        - name: cache mypy
+          uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
+          with:
+            path: ./.mypy_cache
+            key: mypy|${{ hashFiles('pyproject.toml') }}
+        - run: pip install tox
+        - run: tox run -e typing
