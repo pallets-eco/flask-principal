@@ -123,48 +123,6 @@ class PermissionDenied(RuntimeError):
     """Permission denied to the resource"""
 
 
-class Identity(object):
-    """Represent the user's identity.
-
-    :param id: The user id
-    :param auth_type: The authentication type used to confirm the user's
-                      identity.
-
-    The identity is used to represent the user's identity in the system. This
-    object is created on login, or on the start of the request as loaded from
-    the user's session.
-
-    Once loaded it is sent using the `identity-loaded` signal, and should be
-    populated with additional required information.
-
-    Needs that are provided by this identity should be added to the `provides`
-    set after loading.
-    """
-    def __init__(self, id: Optional[Any], auth_type: Optional[str] = None) -> None:
-        self.id = id
-        self.auth_type = auth_type
-        self.provides: Set[Union[Need, ItemNeed]] = set()
-
-    def can(self, permission: BasePermission) -> bool:
-        """Whether the identity has access to the permission.
-
-        :param permission: The permission to test provision for.
-        """
-        return permission.allows(self)
-
-    def __repr__(self) -> str:
-        return '<{0} id="{1}" auth_type="{2}" provides={3}>'.format(
-            self.__class__.__name__, self.id, self.auth_type, self.provides
-        )
-
-
-class AnonymousIdentity(Identity):
-    """An anonymous identity"""
-
-    def __init__(self) -> None:
-        Identity.__init__(self, None)
-
-
 class IdentityContext(object):
     """The context of an identity for a permission.
 
@@ -176,14 +134,14 @@ class IdentityContext(object):
     flow is continued (context manager) or the function is executed (decorator).
     """
 
-    def __init__(self, permission: BasePermission, http_exception: Optional[int] = None) -> None:
+    def __init__(self, permission: 'BasePermission', http_exception: Optional[int] = None) -> None:
         self.permission = permission
         self.http_exception = http_exception
         """The permission of this principal
         """
 
     @property
-    def identity(self) -> Identity:
+    def identity(self) -> 'Identity':
         """The identity of this principal
         """
         return cast(Identity, g.identity)
@@ -230,28 +188,28 @@ class BasePermission:
         """
         return self._bool()
 
-    def __or__(self, other: Union['Permission', BasePermission]) -> Union['Permission', BasePermission]:
+    def __or__(self, other: Union['Permission', 'BasePermission']) -> Union['Permission', 'BasePermission']:
         """See ``OrPermission``.
         """
         return self.or_(other)
 
-    def or_(self, other: Union['Permission', BasePermission]) -> Union['Permission', BasePermission]:
+    def or_(self, other: Union['Permission', 'BasePermission']) -> Union['Permission', 'BasePermission']:
         return OrPermission(self, other)
 
-    def __and__(self, other: Union['Permission', BasePermission]) -> Union['Permission', BasePermission]:
+    def __and__(self, other: Union['Permission', 'BasePermission']) -> Union['Permission', 'BasePermission']:
         """See ``AndPermission``.
         """
         return self.and_(other)
 
-    def and_(self, other: Union['Permission', BasePermission]) -> Union['Permission', BasePermission]:
+    def and_(self, other: Union['Permission', 'BasePermission']) -> Union['Permission', 'BasePermission']:
         return AndPermission(self, other)
 
-    def __invert__(self) -> Union['NotPermission', BasePermission]:
+    def __invert__(self) -> Union['NotPermission', 'BasePermission']:
         """See ``NotPermission``.
         """
         return self.invert()
 
-    def invert(self) -> Union['NotPermission', BasePermission]:
+    def invert(self) -> Union['NotPermission', 'BasePermission']:
         return NotPermission(self)
 
     def require(self, http_exception: Optional[int] = None) -> IdentityContext:
@@ -287,7 +245,7 @@ class BasePermission:
         with self.require(http_exception):
             pass
 
-    def allows(self, identity: Identity) -> bool:
+    def allows(self, identity: 'Identity') -> bool:
         """Whether the identity can access this permission.
 
         :param identity: The identity
@@ -302,6 +260,49 @@ class BasePermission:
         permission
         """
         return self.require().can()
+
+class Identity:
+    """Represent the user's identity.
+
+    :param id: The user id
+    :param auth_type: The authentication type used to confirm the user's
+                      identity.
+
+    The identity is used to represent the user's identity in the system. This
+    object is created on login, or on the start of the request as loaded from
+    the user's session.
+
+    Once loaded it is sent using the `identity-loaded` signal, and should be
+    populated with additional required information.
+
+    Needs that are provided by this identity should be added to the `provides`
+    set after loading.
+    """
+    def __init__(self, id: Optional[Any], auth_type: Optional[str] = None) -> None:
+        self.id = id
+        self.auth_type = auth_type
+        self.provides: Set[Union[Need, ItemNeed]] = set()
+
+    def can(self, permission: BasePermission) -> bool:
+        """Whether the identity has access to the permission.
+
+        :param permission: The permission to test provision for.
+        """
+        return permission.allows(self)
+
+    def __repr__(self) -> str:
+        return '<{0} id="{1}" auth_type="{2}" provides={3}>'.format(
+            self.__class__.__name__, self.id, self.auth_type, self.provides
+        )
+
+
+class AnonymousIdentity(Identity):
+    """An anonymous identity"""
+
+    def __init__(self) -> None:
+        Identity.__init__(self, None)
+
+
 
 
 class _NaryOperatorPermission(BasePermission):
