@@ -18,11 +18,12 @@ import sys
 
 from functools import partial, wraps
 from collections import deque
-
+from typing import cast, Any, Callable, Deque, Dict, Optional, Set, Tuple, TypeVar, Union, cast
 from collections import namedtuple
 
 from flask import g, session, current_app, abort, request
-from flask.signals import Namespace
+from blinker.base import Namespace
+from flask import Flask
 
 PY3 = sys.version_info[0] == 3
 
@@ -139,19 +140,19 @@ class Identity(object):
     Needs that are provided by this identity should be added to the `provides`
     set after loading.
     """
-    def __init__(self, id, auth_type=None):
+    def __init__(self, id: Optional[Any], auth_type: Optional[str] = None) -> None:
         self.id = id
         self.auth_type = auth_type
-        self.provides = set()
+        self.provides: Set[Union[Need, ItemNeed]] = set()
 
-    def can(self, permission):
+    def can(self, permission: BasePermission) -> bool:
         """Whether the identity has access to the permission.
 
         :param permission: The permission to test provision for.
         """
         return permission.allows(self)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return '<{0} id="{1}" auth_type="{2}" provides={3}>'.format(
             self.__class__.__name__, self.id, self.auth_type, self.provides
         )
@@ -160,7 +161,7 @@ class Identity(object):
 class AnonymousIdentity(Identity):
     """An anonymous identity"""
 
-    def __init__(self):
+    def __init__(self) -> None:
         Identity.__init__(self, None)
 
 
@@ -175,85 +176,85 @@ class IdentityContext(object):
     flow is continued (context manager) or the function is executed (decorator).
     """
 
-    def __init__(self, permission, http_exception=None):
+    def __init__(self, permission: BasePermission, http_exception: Optional[int] = None) -> None:
         self.permission = permission
         self.http_exception = http_exception
         """The permission of this principal
         """
 
     @property
-    def identity(self):
+    def identity(self) -> Identity:
         """The identity of this principal
         """
-        return g.identity
+        return cast(Identity, g.identity)
 
-    def can(self):
+    def can(self) -> bool:
         """Whether the identity has access to the permission
         """
         return self.identity.can(self.permission)
 
-    def __call__(self, f):
+    def __call__(self, f: Callable[..., Any]) -> Callable[..., Any]:
         @wraps(f)
-        def _decorated(*args, **kw):
+        def _decorated(*args: Any, **kw: Any) -> Any:
             with self:
                 rv = f(*args, **kw)
             return rv
         return _decorated
 
-    def __enter__(self):
+    def __enter__(self) -> None:
         # check the permission here
         if not self.can():
             if self.http_exception:
                 abort(self.http_exception, self.permission)
             raise PermissionDenied(self.permission)
 
-    def __exit__(self, *args):
-        return False
+    def __exit__(self, *args: Any) -> None:
+        pass
 
 
-class BasePermission(object):
+class BasePermission:
     """The Base Permission."""
 
     http_exception = None
 
-    def _bool(self):
+    def _bool(self) -> bool:
         return bool(self.can())
 
-    def __nonzero__(self):
+    def __nonzero__(self) -> bool:
         """Equivalent to ``self.can()``.
         """
         return self._bool()
 
-    def __bool__(self):
+    def __bool__(self) -> bool:
         """Equivalent to ``self.can()``.
         """
         return self._bool()
 
-    def __or__(self, other):
+    def __or__(self, other: Union['Permission', BasePermission]) -> Union['Permission', BasePermission]:
         """See ``OrPermission``.
         """
         return self.or_(other)
 
-    def or_(self, other):
+    def or_(self, other: Union['Permission', BasePermission]) -> Union['Permission', BasePermission]:
         return OrPermission(self, other)
 
-    def __and__(self, other):
+    def __and__(self, other: Union['Permission', BasePermission]) -> Union['Permission', BasePermission]:
         """See ``AndPermission``.
         """
         return self.and_(other)
 
-    def and_(self, other):
+    def and_(self, other: Union['Permission', BasePermission]) -> Union['Permission', BasePermission]:
         return AndPermission(self, other)
 
-    def __invert__(self):
+    def __invert__(self) -> Union['NotPermission', BasePermission]:
         """See ``NotPermission``.
         """
         return self.invert()
 
-    def invert(self):
+    def invert(self) -> Union['NotPermission', BasePermission]:
         return NotPermission(self)
 
-    def require(self, http_exception=None):
+    def require(self, http_exception: Optional[int] = None) -> IdentityContext:
         """Create a principal for this permission.
 
         The principal may be used as a context manager, or a decroator.
@@ -271,7 +272,7 @@ class BasePermission(object):
 
         return IdentityContext(self, http_exception)
 
-    def test(self, http_exception=None):
+    def test(self, http_exception: Optional[int] = None) -> None:
         """
         Checks if permission available and raises relevant exception
         if not. This is useful if you just want to check permission
@@ -286,7 +287,7 @@ class BasePermission(object):
         with self.require(http_exception):
             pass
 
-    def allows(self, identity):
+    def allows(self, identity: Identity) -> bool:
         """Whether the identity can access this permission.
 
         :param identity: The identity
@@ -294,7 +295,7 @@ class BasePermission(object):
 
         raise NotImplementedError
 
-    def can(self):
+    def can(self) -> bool:
         """Whether the required context for this permission has access
 
         This creates an identity context and tests whether it can access this
@@ -305,8 +306,8 @@ class BasePermission(object):
 
 class _NaryOperatorPermission(BasePermission):
 
-    def __init__(self, *permissions):
-        self.permissions = set(permissions)
+    def __init__(self, *permissions: BasePermission) -> None:
+        self.permissions: Set[BasePermission] = set(permissions)
 
 
 # These classes would be unnecessary if we have predicate calculus
@@ -315,7 +316,7 @@ class _NaryOperatorPermission(BasePermission):
 class OrPermission(_NaryOperatorPermission):
     """Result of bitwise ``or`` of BasePermission"""
 
-    def allows(self, identity):
+    def allows(self, identity: Identity) -> bool:
         """
         Checks for any of the nested permission instances that allow the
         identity and return True, else return False.
@@ -323,16 +324,13 @@ class OrPermission(_NaryOperatorPermission):
         :param identity: The identity.
         """
 
-        for p in self.permissions:
-            if p.allows(identity):
-                return True
-        return False
+        return any(p.allows(identity) for p in self.permissions)
 
 
 class AndPermission(_NaryOperatorPermission):
     """Result of bitwise ``and`` of BasePermission"""
 
-    def allows(self, identity):
+    def allows(self, identity: Identity) -> bool:
         """
         Checks for any of the nested permission instances that disallow
         the identity and return False, else return True.
@@ -340,10 +338,7 @@ class AndPermission(_NaryOperatorPermission):
         :param identity: The identity.
         """
 
-        for p in self.permissions:
-            if not p.allows(identity):
-                return False
-        return True
+        return all(p.allows(identity) for p in self.permissions)
 
 
 class NotPermission(BasePermission):
@@ -355,13 +350,13 @@ class NotPermission(BasePermission):
     not doing that.
     """
 
-    def __init__(self, permission):
+    def __init__(self, permission: BasePermission) -> None:
         self.permission = permission
 
-    def invert(self):
+    def invert(self) -> BasePermission:
         return self.permission
 
-    def allows(self, identity):
+    def allows(self, identity: Identity) -> bool:
         return not self.permission.allows(identity)
 
 
@@ -370,44 +365,42 @@ class Permission(BasePermission):
 
     :param needs: The needs for this permission
     """
-    def __init__(self, *needs):
+    def __init__(self, *needs: Union[Need, ItemNeed]) -> None:
         """A set of needs, any of which must be present in an identity to have
         access.
         """
 
-        self.perms = {n: True for n in needs}
+        self.perms: Dict[Union[Need, ItemNeed], bool] = {n: True for n in needs}
 
-    def __or__(self, other):
+    def __or__(self, other: Union['Permission', BasePermission]) -> Union['Permission', BasePermission]:
         """Does the same thing as ``self.union(other)``
         """
         if isinstance(other, Permission):
             return self.union(other)
         return super(Permission, self).__or__(other)
 
-    def __sub__(self, other):
+    def __sub__(self, other: 'Permission') -> 'Permission':
         """Does the same thing as ``self.difference(other)``
         """
         return self.difference(other)
 
-    def __contains__(self, other):
+    def __contains__(self, other: 'Permission') -> bool:
         """Does the same thing as ``other.issubset(self)``.
         """
         return other.issubset(self)
 
-    def __repr__(self):
-        return '<{0} needs={1} excludes={2}>'.format(
-            self.__class__.__name__, self.needs, self.excludes
-        )
+    def __repr__(self) -> str:
+        return f'<{self.__class__.__name__} needs={self.needs} excludes={self.excludes}>'
 
     @property
-    def needs(self):
-        return set(n for n in self.perms if self.perms[n])
+    def needs(self) -> Set[Union[Need, ItemNeed]]:
+        return {n for n, v in self.perms.items() if v}
 
     @property
-    def excludes(self):
-        return set(n for n in self.perms if not self.perms[n])
+    def excludes(self) -> Set[Union[Need, ItemNeed]]:
+        return {n for n, v in self.perms.items() if not v}
 
-    def reverse(self):
+    def reverse(self) -> 'Permission':
         """
         Returns reverse of current state (needs->excludes, excludes->needs)
         """
@@ -418,7 +411,7 @@ class Permission(BasePermission):
         p.perms.update({n: not v for n, v in self.perms.items()})
         return p
 
-    def union(self, other):
+    def union(self, other: 'Permission') -> 'Permission':
         """Create a new permission with the requirements of the union of this
         and other.
 
@@ -432,7 +425,7 @@ class Permission(BasePermission):
         }
         return p
 
-    def difference(self, other):
+    def difference(self, other: 'Permission') -> 'Permission':
         """Create a new permission consisting of requirements in this
         permission and not in the other.
         """
@@ -445,7 +438,7 @@ class Permission(BasePermission):
         }
         return p
 
-    def issubset(self, other):
+    def issubset(self, other: 'Permission') -> bool:
         """Whether this permission needs are a subset of another
 
         :param other: The other permission
@@ -455,7 +448,7 @@ class Permission(BasePermission):
             self.excludes.issubset(other.excludes)
         )
 
-    def allows(self, identity):
+    def allows(self, identity: Identity) -> bool:
         """Whether the identity can access this permission.
 
         :param identity: The identity
@@ -474,18 +467,19 @@ class Denial(Permission):
     Shortcut class for passing excluded needs.
     """
 
-    def __init__(self, *excludes):
+    def __init__(self, *excludes: Union[Need, ItemNeed]) -> None:
         self.perms = {e: False for e in excludes}
 
 
-def session_identity_loader():
+def session_identity_loader() -> Optional[Identity]:
     if 'identity.id' in session and 'identity.auth_type' in session:
         identity = Identity(session['identity.id'],
-                            session['identity.auth_type'])
+                          session['identity.auth_type'])
         return identity
+    return None
 
 
-def session_identity_saver(identity):
+def session_identity_saver(identity: Identity) -> None:
     session['identity.id'] = identity.id
     session['identity.auth_type'] = identity.auth_type
     session.modified = True
@@ -499,9 +493,14 @@ class Principal(object):
                          identification.
     :param skip_static: Whether to ignore static endpoints.
     """
-    def __init__(self, app=None, use_sessions=True, skip_static=False):
-        self.identity_loaders = deque()
-        self.identity_savers = deque()
+    def __init__(
+        self, 
+        app: Optional[Flask] = None, 
+        use_sessions: bool = True, 
+        skip_static: bool = False
+    ) -> None:
+        self.identity_loaders: Deque[Callable[[], Optional[Identity]]] = deque()
+        self.identity_savers: Deque[Callable[[Identity], None]] = deque()
         # XXX This will probably vanish for a better API
         self.use_sessions = use_sessions
         self.skip_static = skip_static
@@ -509,7 +508,7 @@ class Principal(object):
         if app is not None:
             self.init_app(app)
 
-    def _init_app(self, app):
+    def _init_app(self, app: Flask) -> None:
         from warnings import warn
         warn(DeprecationWarning(
             '_init_app is deprecated, use the new init_app '
@@ -517,11 +516,11 @@ class Principal(object):
         )
         self.init_app(app)
 
-    def init_app(self, app):
+    def init_app(self, app: Flask) -> None:
         if hasattr(app, 'static_url_path'):
             self._static_path = app.static_url_path
         else:
-            self._static_path = app.static_path
+            self._static_path = app.static_path  # type: ignore
 
         app.before_request(self._on_before_request)
         identity_changed.connect(self._on_identity_changed, app)
@@ -530,7 +529,7 @@ class Principal(object):
             self.identity_loader(session_identity_loader)
             self.identity_saver(session_identity_saver)
 
-    def set_identity(self, identity):
+    def set_identity(self, identity: Identity) -> None:
         """Set the current identity.
 
         :param identity: The identity to set
@@ -540,7 +539,7 @@ class Principal(object):
         for saver in self.identity_savers:
             saver(identity)
 
-    def identity_loader(self, f):
+    def identity_loader(self, f: Callable[[], Optional[Identity]]) -> Callable[[], Optional[Identity]]:
         """Decorator to define a function as an identity loader.
 
         An identity loader function is called before request to find any
@@ -559,7 +558,7 @@ class Principal(object):
         self.identity_loaders.appendleft(f)
         return f
 
-    def identity_saver(self, f):
+    def identity_saver(self, f: Callable[[Identity], None]) -> Callable[[Identity], None]:
         """Decorator to define a function as an identity saver.
 
         An identity loader saver is called when the identity is set to persist
@@ -578,18 +577,18 @@ class Principal(object):
         self.identity_savers.appendleft(f)
         return f
 
-    def _set_thread_identity(self, identity):
+    def _set_thread_identity(self, identity: Identity) -> None:
         g.identity = identity
-        identity_loaded.send(current_app._get_current_object(),
-                             identity=identity)
+        identity_loaded.send(current_app._get_current_object(),  # type: ignore
+                           identity=identity)
 
-    def _on_identity_changed(self, app, identity):
+    def _on_identity_changed(self, app: Flask, identity: Identity) -> None:
         if self._is_static_route():
             return
 
         self.set_identity(identity)
 
-    def _on_before_request(self):
+    def _on_before_request(self) -> None:
         if self._is_static_route():
             return
 
@@ -600,8 +599,9 @@ class Principal(object):
                 self.set_identity(identity)
                 return
 
-    def _is_static_route(self):
-        return (
+    def _is_static_route(self) -> bool:
+        return bool(
             self.skip_static and
-            (self._static_path and request.path.startswith(self._static_path))
+            self._static_path and 
+            request.path.startswith(self._static_path)
         )
