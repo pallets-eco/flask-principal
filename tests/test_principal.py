@@ -409,7 +409,7 @@ def mkapp(with_factory=False):
         return Response("hello")
 
     @app.route("/l")
-    def l():
+    def l2():
         s = []
         if not admin_or_editor:
             s.append("not admin_or_editor")

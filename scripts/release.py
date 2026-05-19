@@ -41,7 +41,7 @@ def parse_changelog():
             version = match.group(1).strip()
 
             if lineiter.next().count("-") != len(line.strip()):
-                fail("Invalid hyphen count below version line: %s", line.strip())
+                fail(f"Invalid hyphen count below version line: {line.strip()}")
 
             while 1:
                 released = lineiter.next().strip()
@@ -51,7 +51,7 @@ def parse_changelog():
             match = re.search(r"Released (\w+\s+\d+\w+\s+\d+)", released)
 
             if match is None:
-                fail("Could not find release date in version %s" % version)
+                fail(f"Could not find release date in version {version}")
 
             datestr = parse_date(match.group(1).strip())
 
@@ -82,7 +82,7 @@ def set_filename_version(filename, version_number, pattern):
 
     with open(filename) as f:
         contents = re.sub(
-            r"^(\s*%s\s*=\s*')(.+?)(')(?sm)" % pattern, inject_version, f.read()
+            rf"^(\s*{pattern}\s*=\s*')(.+?)(')(?sm)", inject_version, f.read()
         )
 
     if not changed:
@@ -113,13 +113,13 @@ def build_and_upload():
     ).wait()
 
 
-def fail(message, *args):
-    print >> sys.stderr, "Error:", message % args
+def fail(message: str):
+    print("Error:", message, file=sys.stderr)
     sys.exit(1)
 
 
-def info(message, *args):
-    print >> sys.stderr, message % args
+def info(message: str):
+    print(message, file=sys.stderr)
 
 
 def get_git_tags():
@@ -136,8 +136,8 @@ def make_git_commit(message, *args):
 
 
 def make_git_tag(tag):
-    info('Tagging "%s"', tag)
-    Popen(["git", "tag", "-a", tag, "-m", "%s release" % tag]).wait()
+    info(f'Tagging "{tag}"')
+    Popen(["git", "tag", "-a", tag, "-m", f"{tag} release"]).wait()
     Popen(["git", "push", "--tags"]).wait()
 
 
@@ -168,10 +168,10 @@ def main():
 
     for lib in ["Sphinx", "Sphinx-PyPI-upload"]:
         if not has_library_installed(lib):
-            fail("Build requires that %s be installed", lib)
+            fail(f"Build requires that {lib} be installed")
 
     if version in tags:
-        fail('Version "%s" is already tagged', version)
+        fail(f'Version "{version}" is already tagged')
     if release_date.date() != date.today():
         fail("Release date is not today")
 
@@ -181,10 +181,10 @@ def main():
     if not git_is_clean():
         fail("You have uncommitted changes in git")
 
-    info("Releasing %s (release date %s)", version, release_date.strftime("%d/%m/%Y"))
+    info(f"Releasing {version} (release date {release_date.strftime('%d/%m/%Y')})")
 
     update_version(version)
-    make_git_commit("Bump version number to %s", version)
+    make_git_commit(f"Bump version number to {version}")
     make_git_tag(version)
     build_and_upload()
 

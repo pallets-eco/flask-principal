@@ -140,8 +140,8 @@ class PermissionDenied(RuntimeError):
 class IdentityContext:
     """The context of an identity for a permission.
 
-    .. note:: The principal is usually created by the flask_principal.Permission.require method
-              call for normal use-cases.
+    .. note:: The principal is usually created by the flask_principal.Permission.require
+              method call for normal use-cases.
 
     The principal behaves as either a context manager or a decorator. The
     permission is checked for provision in the identity, and if available the
@@ -311,7 +311,10 @@ class Identity:
         return permission.allows(self)
 
     def __repr__(self) -> str:
-        return f'<{self.__class__.__name__} id="{self.id}" auth_type="{self.auth_type}" provides={self.provides}>'
+        return (
+            f'<{self.__class__.__name__} id="{self.id}" auth_type="{self.auth_type}" '
+            f"provides={self.provides}>"
+        )
 
 
 class AnonymousIdentity(Identity):
@@ -396,7 +399,7 @@ class Permission(BasePermission):
         """Does the same thing as ``self.union(other)``"""
         if isinstance(other, Permission):
             return self.union(other)
-        return super(Permission, self).__or__(other)
+        return super().__or__(other)
 
     def __sub__(self, other: "Permission") -> "Permission":
         """Does the same thing as ``self.difference(other)``"""
@@ -531,7 +534,7 @@ class Principal:
 
         warn(
             DeprecationWarning(
-                "_init_app is deprecated, use the new init_app " "method instead."
+                "_init_app is deprecated, use the new init_app method instead."
             ),
             stacklevel=1,
         )
