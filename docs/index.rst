@@ -23,11 +23,11 @@ The major components are the Identity, Needs, Permission, and the IdentityContex
     1. The Identity represents the user, and is stored/loaded from various
        locations (eg session) for each request. The Identity is the user's
        avatar to the system. It contains the access rights that the user has.
-    
+
     2. A Need is the smallest grain of access control, and represents a specific
        parameter for the situation. For example "has the admin role", "can edit
        blog posts".
-    
+
        Needs are any tuple, or probably could be object you like, but a tuple
        fits perfectly. The predesigned Need types (for saving your typing) are
        either pairs of (method, value) where method is used to specify
@@ -37,7 +37,7 @@ The major components are the Identity, Needs, Permission, and the IdentityContex
        to edit a particular instance of an object or row", which might be represented
        as the triple `('article', 'edit', 46)`, where 46 is the key/ID for that
        row/object.
-       
+
        Essentially, how and what Needs are is very much down to the user, and is
        designed loosely so that any effect can be achieved by using custom
        instances as Needs.
@@ -47,7 +47,7 @@ The major components are the Identity, Needs, Permission, and the IdentityContex
 
     3. A Permission is a set of requirements, any of which should be
        present for access to a resource.
-       
+
     4. An IdentityContext is the context of a certain identity against a certain
        Permission. It can be used as a context manager, or a decorator.
 
@@ -114,8 +114,8 @@ Authentication providers
 
 Authentication providers should use the `identity-changed` signal to indicate
 that a request has been authenticated. For example, the following code is a
-hypothetical example of how one might combine the popular 
-`Flask-Login <https://flask-login.readthedocs.io/>`_  extension with 
+hypothetical example of how one might combine the popular
+`Flask-Login <https://flask-login.readthedocs.io/>`_  extension with
 Flask-Principal::
 
 
@@ -149,7 +149,7 @@ Flask-Principal::
     class DB:
 
         def __init__(self):
-            pass 
+            pass
 
         def find_user(self, id=None, email=None):
             example_user = User(id=id, email=email)
@@ -178,7 +178,7 @@ Flask-Principal::
                 # Retrieve the user from the hypothetical datastore
                 datastore = DB()
                 user = datastore.find_user(email=form.email.data)
-                
+
                 # Compare passwords (use password hashing production)
                 if form.password.data == user.password:
                     # Keep the user info in the session using Flask-Login
@@ -189,7 +189,7 @@ Flask-Principal::
                                             identity=Identity(user.id))
                     print('logged in ')
                     return redirect(request.args.get('next') or '/')
-        
+
         return render_template('login.html', form=form)
 
     @app.route('/logout')
@@ -232,8 +232,8 @@ User Information providers
 --------------------------
 
 User information providers should connect to the `identity-loaded` signal to
-add any additional information to the Identity instance such as roles. The 
-following is another hypothetical example using Flask-Login and could be 
+add any additional information to the Identity instance such as roles. The
+following is another hypothetical example using Flask-Login and could be
 combined with the previous example. It shows how one might use a role based
 permission scheme::
 
@@ -249,7 +249,7 @@ permission scheme::
         if hasattr(current_user, 'id'):
             identity.provides.add(UserNeed(current_user.id))
 
-        # Assuming the User model has a list of roles, update the 
+        # Assuming the User model has a list of roles, update the
         # identity with the roles that the user provides
         if hasattr(current_user, 'roles'):
             for role in current_user.roles:
@@ -260,8 +260,8 @@ Granular Resource Protection
 ----------------------------
 
 Now lets say, for example, you only want the author of a blog post to be able to
-edit said article. This can be achieved by creating the necessary `Need` and 
-`Permission` objects, and adding more logic into the `identity_loaded` signal 
+edit said article. This can be achieved by creating the necessary `Need` and
+`Permission` objects, and adding more logic into the `identity_loaded` signal
 handler. For example::
 
     from collections import namedtuple
@@ -288,7 +288,7 @@ handler. For example::
         if hasattr(current_user, 'id'):
             identity.provides.add(UserNeed(current_user.id))
 
-        # Assuming the User model has a list of roles, update the 
+        # Assuming the User model has a list of roles, update the
         # identity with the roles that the user provides
         if hasattr(current_user, 'roles'):
             for role in current_user.roles:
@@ -300,8 +300,8 @@ handler. For example::
             for post in current_user.posts:
                 identity.provides.add(EditBlogPostNeed(unicode(post.id)))
 
-The next step will be to protect the endpoint that allows a user to edit an 
-article. This is done by creating a permission object on the fly using the ID 
+The next step will be to protect the endpoint that allows a user to edit an
+article. This is done by creating a permission object on the fly using the ID
 of the resource, in this case the blog post::
 
     @app.route('/posts/<post_id>', methods=['PUT', 'PATCH'])
@@ -322,7 +322,7 @@ cases, for more complex cases it is possible to combine existing permissions
 through the use of bitwise operators to result in a new permission object that
 can do the complex validations.  For instance, it is to create a permission
 where the identity has the both the `"blog_poster"` or `"blog_reviewer"` role
-but not the `"under_probation"` role.  Example:: 
+but not the `"under_probation"` role.  Example::
 
     blog_admin = Permission(RoleNeed('blog_admin'))
     blog_poster = Permission(RoleNeed('blog_poster'))
@@ -432,4 +432,3 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-
