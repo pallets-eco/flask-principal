@@ -20,6 +20,39 @@ dependencies = [
     "flask",
 ]
 
+[dependency-groups]
+build = [
+    "build",
+]
+dev = [
+    "tox",
+    "tox-uv",
+    {include-group = "docs"},
+    {include-group = "pre-commit"},
+    {include-group = "tests"},
+    {include-group = "typing"},
+]
+docs = [
+    "pallets-sphinx-themes",
+    "sphinx",
+    "sphinxcontrib-log-cabinet",
+]
+gha-update = [
+    "gha-update ; python_full_version >= '3.12'",
+]
+pre-commit = [
+    "pre-commit ; python_full_version >= '3.9'",
+    "pre-commit-uv ; python_full_version >= '3.9'",
+]
+tests = [
+    "pytest",
+]
+typing = [
+    "mypy",
+    "pyright",
+    "pytest",
+]
+
 [project.urls]
 Documentation = "https://github.com/pallets-eco/flask-principal"
 Changes = "https://github.com/pallets-eco/flask-principal/releases/"
