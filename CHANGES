@@ -3,17 +3,15 @@ Flask-Principal Changelog
 
 Here you can see the full list of changes between each Flask-Principal release.
 
+Version 0.5.0
+-------------
+
 Released 2026-05-31
--------------------
 
 - Added Pallets projects scaffolding
 - Updated docstrings. Changed ``flask.ext.principal`` imports to ``flask_principal``.
 - Updated ``Permission`` needs and excludes to never conflict with each other.
-- Updated docs: Flask-login sections
-- Fix Mypy --strict warnings
 - Added combining permissions feature [#111](https://github.com/pallets-eco/flask-principal/pull/111)
-- Changed intersphinx mapping [#109](https://github.com/pallets-eco/flask-principal/pull/109)
-
 
 Version 0.4.0
 -------------
